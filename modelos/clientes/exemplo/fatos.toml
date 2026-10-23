@@ -1,13 +1,23 @@
 # FATOS FICTÍCIOS do cliente de demonstração "exemplo".
 # Todos foram inventados para teste e estão marcados como tal na fonte.
-# Status aceitos pelo protótipo como válidos: fornecido, verificado.
-# Status que NÃO liberam o número: expirado, contestado.
+#
+# Campos (Incremento 1):
+#   status     fornecido | verificado | expirado | contestado
+#   categoria  institucional | produto | preco | saude | financeiro | comparativo | resultado
+#   contexto   termos que precisam aparecer NA MESMA FRASE para o vínculo ser "forte"
+#              ("ferment*" = prefixo). Sem contexto, todo vínculo é "ambíguo".
+#   unidade    unidade do valor (hora, dia, kg, brl...), se houver
+#   valido_ate data AAAA-MM-DD; depois dela o fato conta como expirado
+#   [fato.fonte]        obrigatória para o fato liberar qualquer afirmação
+#   [fato.verificacao]  obrigatória quando status = "verificado"
 
 [[fato]]
 id = "F-0001"
 texto = "A Padaria Exemplo funciona desde 2015."
 valores = ["2015"]
 status = "verificado"
+categoria = "institucional"
+contexto = ["desde", "funciona*", "fundad*", "abri*", "inaugur*"]
 [fato.fonte]
 tipo = "documento_interno"
 referencia = "FICTÍCIO: dado inventado para teste"
@@ -24,6 +34,9 @@ id = "F-0002"
 texto = "A massa fermenta por 24 horas."
 valores = ["24"]
 status = "fornecido"
+categoria = "produto"
+contexto = ["massa", "ferment*", "descans*"]
+unidade = "hora"
 [fato.fonte]
 tipo = "cliente_declarou"
 referencia = "FICTÍCIO: dado inventado para teste"
@@ -35,6 +48,8 @@ id = "F-0003"
 texto = "Desconto de 10% às terças-feiras."
 valores = ["10%"]
 status = "expirado"
+categoria = "preco"
+contexto = ["desconto", "terca*"]
 [fato.fonte]
 tipo = "cliente_declarou"
 referencia = "FICTÍCIO: dado inventado para teste"

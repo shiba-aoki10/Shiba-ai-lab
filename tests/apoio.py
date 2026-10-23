@@ -17,3 +17,22 @@ def plataforma(valor=100, status="a_verificar"):
 
 def fato(id="F-1", valores=("2015",), status="verificado"):
     return Fato(id=id, texto="fato fictício", valores=tuple(valores), status=status)
+
+
+FONTE = (("tipo", "cliente_declarou"), ("referencia", "FICTÍCIO"),
+         ("informado_por", "teste"), ("informado_em", "2026-10-23"))
+VERIFICACAO = (("fonte", "FICTÍCIO"), ("metodo", "teste"),
+               ("verificado_por", "teste"), ("verificado_em", "2026-10-23"))
+
+
+def fato_completo(id="F-1", valores=("24",), status="verificado", categoria="produto",
+                  contexto=("massa",), unidade="", valido_ate=None, com_fonte=True,
+                  texto="fato fictício"):
+    """Fato fictício com os campos do Incremento 1."""
+    return Fato(
+        id=id, texto=texto, valores=tuple(valores), status=status,
+        categoria=categoria, contexto=tuple(contexto), unidade=unidade, valido_ate=valido_ate,
+        fonte=FONTE if com_fonte else None,
+        verificacao=VERIFICACAO if status == "verificado" else None,
+        origem="teste",
+    )

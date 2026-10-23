@@ -1,0 +1,18 @@
+# CLIENTE FICTÍCIO. Nenhum dado aqui descreve uma pessoa ou empresa real.
+# Serve para demonstrar fatos sensíveis (saúde, resultado, comparação) no Incremento 1.
+
+id = "exemplo-academia"
+nome = "Academia Exemplo (fictícia)"
+ficticio = true
+
+[hashtags]
+minimo = 2
+maximo = 5
+proibidas = ["#sigam"]
+
+[palavras_proibidas]
+termos = ["milagr*"]
+
+[fatos]
+# Categorias que exigem fato VERIFICADO. Padrão: as quatro abaixo.
+categorias_sensiveis = ["saude", "financeiro", "comparativo", "resultado"]

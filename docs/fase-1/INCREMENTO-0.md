@@ -7,6 +7,8 @@
 | Requisitos | Python 3.11+ (usa `tomllib`). Nenhuma dependência externa. |
 | Dados | Só o cliente **fictício** `exemplo` e fixtures sintéticas. |
 
+> **Atualização (Incremento 1):** parte das limitações abaixo foi tratada no [Incremento 1](INCREMENTO-1.md): números por extenso, números editoriais, distinção entre fornecido e verificado, flexões via prefixo `*` e vínculo por contexto. Este documento descreve o protótipo como entregue.
+
 ## O que faz
 
 Verifica **uma legenda de Instagram** (arquivo de texto UTF-8) contra 4 regras e emite um laudo em texto ou JSON.

@@ -30,6 +30,18 @@ def dobrar(texto: str) -> str:
     return "".join(saida)
 
 
+def padrao_termo(termo: str) -> re.Pattern[str]:
+    """Padrão para buscar `termo` no texto DOBRADO, como palavra ou expressão inteira.
+
+    Espaços no termo aceitam qualquer espaço ou quebra de linha. Um "*" no fim
+    vira busca por prefixo: "ferment*" casa "fermenta", "fermentação".
+    """
+    prefixo = termo.endswith("*")
+    partes = [re.escape(p) for p in dobrar(termo.rstrip("*")).split()]
+    fim = "" if prefixo else r"(?!\w)"
+    return re.compile(r"(?<!\w)" + r"\s+".join(partes) + fim)
+
+
 def intervalos(padrao: re.Pattern[str], texto: str) -> list[tuple[int, int]]:
     return [(m.start(), m.end()) for m in padrao.finditer(texto)]
 

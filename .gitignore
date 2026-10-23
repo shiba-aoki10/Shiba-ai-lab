@@ -13,3 +13,5 @@ venv/
 *.chave
 .env
 .env.*
+# Modelos de configuração sem segredos podem ser versionados.
+!.env.example

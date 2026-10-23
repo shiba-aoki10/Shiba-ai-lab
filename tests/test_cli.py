@@ -36,7 +36,9 @@ class TestCli(unittest.TestCase):
         self.assertEqual(codigo, 1)
         self.assertEqual(laudo["resultado"], "bloqueado")
         regras = {a["regra"] for a in laudo["achados"] if a["severidade"] == "bloqueante"}
-        self.assertEqual(regras, {"hashtags", "palavra_proibida", "numero_sem_fato"})
+        # Incremento 1 acrescentou promessa_resultado ("Aqui é garantido").
+        self.assertEqual(regras, {"hashtags", "palavra_proibida", "numero_sem_fato",
+                                  "promessa_resultado"})
         for a in laudo["achados"]:
             if "inicio" in a:
                 self.assertIn("trecho", a)

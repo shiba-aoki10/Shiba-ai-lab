@@ -4,7 +4,10 @@ from __future__ import annotations
 import re
 import tomllib
 from dataclasses import dataclass
+from datetime import date, datetime
 from pathlib import Path
+
+from .unidades import normalizar as normalizar_unidade
 
 RAIZ = Path(__file__).resolve().parent.parent
 DIR_PLATAFORMAS = RAIZ / "plataformas"
@@ -15,6 +18,11 @@ _ID = re.compile(r"[a-z0-9][a-z0-9-]{0,62}")
 
 STATUS_LIMITE = ("a_verificar", "verificado", "expirado")
 STATUS_FATO = ("fornecido", "verificado", "expirado", "contestado")
+CATEGORIAS = ("institucional", "produto", "preco", "saude", "financeiro", "comparativo",
+              "resultado")
+CATEGORIAS_SENSIVEIS_PADRAO = ("saude", "financeiro", "comparativo", "resultado")
+CAMPOS_FONTE = ("tipo", "referencia", "informado_por", "informado_em")
+CAMPOS_VERIFICACAO = ("fonte", "metodo", "verificado_por", "verificado_em")
 
 
 class ErroConfig(Exception):
@@ -49,6 +57,7 @@ class Cliente:
     hashtags_maximo: int
     hashtags_proibidas: tuple[str, ...]
     palavras_proibidas: tuple[str, ...]
+    categorias_sensiveis: tuple[str, ...] = CATEGORIAS_SENSIVEIS_PADRAO
 
 
 @dataclass(frozen=True)
@@ -57,6 +66,13 @@ class Fato:
     texto: str
     valores: tuple[str, ...]
     status: str
+    categoria: str = "institucional"
+    contexto: tuple[str, ...] = ()      # termos que identificam o assunto do fato
+    unidade: str = ""                   # unidade canônica (ver unidades.py), se houver
+    valido_ate: date | None = None
+    fonte: tuple[tuple[str, str], ...] | None = None        # pares (campo, valor)
+    verificacao: tuple[tuple[str, str], ...] | None = None  # pares (campo, valor)
+    origem: str = ""                    # arquivo de onde o fato veio
 
 
 def validar_id(valor: str, tipo: str) -> str:
@@ -141,6 +157,14 @@ def carregar_cliente(cliente_id: str, diretorio: Path = DIR_CLIENTES) -> Cliente
         raise ErroConfig(f"{origem} [hashtags]: exige 0 <= minimo <= maximo")
     proibidas = _lista_de_textos(hashtags, "proibidas", f"{origem} [hashtags]")
     palavras = _campo(dados, "palavras_proibidas", dict, origem)
+    secao_fatos = dados.get("fatos", {})
+    if not isinstance(secao_fatos, dict):
+        raise ErroConfig(f"{origem}: [fatos] deve ser uma tabela")
+    sensiveis = _lista_de_textos(secao_fatos, "categorias_sensiveis", f"{origem} [fatos]") \
+        if "categorias_sensiveis" in secao_fatos else CATEGORIAS_SENSIVEIS_PADRAO
+    for cat in sensiveis:
+        if cat not in CATEGORIAS:
+            raise ErroConfig(f"{origem} [fatos]: categoria desconhecida {cat!r}")
     return Cliente(
         id=cliente_id,
         nome=_campo(dados, "nome", str, origem),
@@ -149,14 +173,79 @@ def carregar_cliente(cliente_id: str, diretorio: Path = DIR_CLIENTES) -> Cliente
         hashtags_maximo=maximo,
         hashtags_proibidas=tuple(p.lstrip("#") for p in proibidas),
         palavras_proibidas=_lista_de_textos(palavras, "termos", f"{origem} [palavras_proibidas]"),
+        categorias_sensiveis=tuple(sensiveis),
     )
 
 
-def carregar_fatos(cliente_id: str, diretorio: Path = DIR_CLIENTES) -> tuple[Fato, ...]:
-    validar_id(cliente_id, "cliente")
-    caminho = Path(diretorio) / cliente_id / "fatos.toml"
+def _data(valor, origem: str, nome: str) -> date:
+    if isinstance(valor, datetime):
+        return valor.date()
+    if isinstance(valor, date):
+        return valor
+    if isinstance(valor, str):
+        try:
+            return date.fromisoformat(valor)
+        except ValueError:
+            pass
+    raise ErroConfig(f"{origem}: {nome} deve ser uma data AAAA-MM-DD")
+
+
+def _registro(bruto, campos: tuple[str, ...], origem: str) -> tuple[tuple[str, str], ...]:
+    """Tabela de fonte ou verificação: todos os campos obrigatórios e não vazios."""
+    if not isinstance(bruto, dict):
+        raise ErroConfig(f"{origem}: deve ser uma tabela")
+    pares = []
+    for campo in campos:
+        valor = bruto.get(campo)
+        if isinstance(valor, (date, datetime)):
+            valor = valor.isoformat()
+        if not isinstance(valor, str) or not valor.strip():
+            raise ErroConfig(f"{origem}: campo obrigatório ausente ou vazio: {campo}")
+        pares.append((campo, valor.strip()))
+    return tuple(pares)
+
+
+def _fato(bruto: dict, local: str, origem: str) -> Fato:
+    fato_id = _campo(bruto, "id", str, local)
+    status = _campo(bruto, "status", str, local)
+    if status not in STATUS_FATO:
+        raise ErroConfig(f"{local}: status deve ser um de {STATUS_FATO}")
+    categoria = bruto.get("categoria", "institucional")
+    if categoria not in CATEGORIAS:
+        raise ErroConfig(f"{local}: categoria deve ser uma de {CATEGORIAS}")
+    unidade = bruto.get("unidade", "")
+    if not isinstance(unidade, str):
+        raise ErroConfig(f"{local}: unidade deve ser texto")
+    # Fonte é opcional na carga para não quebrar registros antigos, mas um fato
+    # sem fonte nunca libera uma afirmação (regra fato_sem_fonte).
+    fonte = _registro(bruto["fonte"], CAMPOS_FONTE, f"{local} [fonte]") if "fonte" in bruto else None
+    verificacao = None
+    if "verificacao" in bruto:
+        if status == "fornecido":
+            raise ErroConfig(f"{local}: fato 'fornecido' não pode ter [verificacao]")
+        verificacao = _registro(bruto["verificacao"], CAMPOS_VERIFICACAO, f"{local} [verificacao]")
+    if status == "verificado" and (fonte is None or verificacao is None):
+        raise ErroConfig(f"{local}: fato 'verificado' exige [fato.fonte] e [fato.verificacao]")
+    return Fato(
+        id=fato_id,
+        texto=_campo(bruto, "texto", str, local),
+        valores=_lista_de_textos(bruto, "valores", local),
+        status=status,
+        categoria=categoria,
+        contexto=_lista_de_textos(bruto, "contexto", local),
+        unidade=normalizar_unidade(unidade) if unidade.strip() else "",
+        valido_ate=_data(bruto["valido_ate"], local, "valido_ate") if "valido_ate" in bruto else None,
+        fonte=fonte,
+        verificacao=verificacao,
+        origem=origem,
+    )
+
+
+def carregar_fatos_arquivo(caminho: Path, origem: str | None = None) -> tuple[Fato, ...]:
+    """Carrega [[fato]] de um arquivo TOML (registro do cliente ou fatos da peça)."""
+    caminho = Path(caminho)
+    origem = origem or caminho.name
     dados = _ler_toml(caminho)
-    origem = f"{cliente_id}/fatos.toml"
     brutos = dados.get("fato", [])
     if not isinstance(brutos, list):
         raise ErroConfig(f"{origem}: use [[fato]] para cada fato")
@@ -165,19 +254,28 @@ def carregar_fatos(cliente_id: str, diretorio: Path = DIR_CLIENTES) -> tuple[Fat
         local = f"{origem} fato #{i}"
         if not isinstance(bruto, dict):
             raise ErroConfig(f"{local}: formato inválido")
-        fato_id = _campo(bruto, "id", str, local)
-        if fato_id in vistos:
-            raise ErroConfig(f"{local}: id duplicado {fato_id}")
-        vistos.add(fato_id)
-        status = _campo(bruto, "status", str, local)
-        if status not in STATUS_FATO:
-            raise ErroConfig(f"{local}: status deve ser um de {STATUS_FATO}")
-        fatos.append(
-            Fato(
-                id=fato_id,
-                texto=_campo(bruto, "texto", str, local),
-                valores=_lista_de_textos(bruto, "valores", local),
-                status=status,
-            )
-        )
+        fato = _fato(bruto, local, origem)
+        if fato.id in vistos:
+            raise ErroConfig(f"{local}: id duplicado {fato.id}")
+        vistos.add(fato.id)
+        fatos.append(fato)
     return tuple(fatos)
+
+
+def carregar_fatos(cliente_id: str, diretorio: Path = DIR_CLIENTES) -> tuple[Fato, ...]:
+    validar_id(cliente_id, "cliente")
+    return carregar_fatos_arquivo(Path(diretorio) / cliente_id / "fatos.toml",
+                                  f"{cliente_id}/fatos.toml")
+
+
+def juntar_fatos(*grupos: tuple[Fato, ...]) -> tuple[Fato, ...]:
+    """Une registros (cliente + peça). Id repetido entre arquivos é erro."""
+    vistos: dict[str, str] = {}
+    saida = []
+    for grupo in grupos:
+        for fato in grupo:
+            if fato.id in vistos:
+                raise ErroConfig(f"id de fato repetido: {fato.id} ({vistos[fato.id]} e {fato.origem})")
+            vistos[fato.id] = fato.origem
+            saida.append(fato)
+    return tuple(saida)

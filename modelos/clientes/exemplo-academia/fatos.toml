@@ -1,0 +1,79 @@
+# FATOS FICTÍCIOS do cliente de demonstração "exemplo-academia".
+# Todos foram inventados para teste; nenhum descreve pesquisa, pessoa ou resultado real.
+
+[[fato]]
+id = "A-0001"
+texto = "A Academia Exemplo tem 3 unidades."
+valores = ["3"]
+status = "verificado"
+categoria = "institucional"
+contexto = ["unidade*", "academia*"]
+[fato.fonte]
+tipo = "documento_interno"
+referencia = "FICTÍCIO: dado inventado para teste"
+informado_por = "equipe de teste"
+informado_em = "2026-10-23"
+[fato.verificacao]
+fonte = "FICTÍCIO: documento de teste"
+metodo = "demonstração"
+verificado_por = "equipe de teste"
+verificado_em = "2026-10-23"
+
+[[fato]]
+id = "A-0002"
+texto = "Em pesquisa interna fictícia, 80% dos alunos avaliaram as aulas como boas."
+valores = ["80%"]
+status = "verificado"
+categoria = "resultado"
+contexto = ["aluno*", "avalia*", "pesquisa*"]
+[fato.fonte]
+tipo = "documento_interno"
+referencia = "FICTÍCIO: pesquisa inventada para teste"
+informado_por = "equipe de teste"
+informado_em = "2026-10-23"
+[fato.verificacao]
+fonte = "FICTÍCIO: planilha de teste"
+metodo = "demonstração"
+verificado_por = "equipe de teste"
+verificado_em = "2026-10-23"
+
+[[fato]]
+id = "A-0003"
+texto = "O programa de reabilitação dura 12 semanas."
+valores = ["12"]
+status = "fornecido"
+categoria = "saude"
+contexto = ["reabilita*", "programa"]
+unidade = "semana"
+[fato.fonte]
+tipo = "cliente_declarou"
+referencia = "FICTÍCIO: dado inventado para teste"
+informado_por = "equipe de teste"
+informado_em = "2026-10-23"
+
+[[fato]]
+id = "A-0004"
+texto = "A Academia Exemplo é a maior do bairro."
+valores = []
+status = "contestado"
+categoria = "comparativo"
+contexto = ["bairro"]
+[fato.fonte]
+tipo = "cliente_declarou"
+referencia = "FICTÍCIO: dado inventado para teste"
+informado_por = "equipe de teste"
+informado_em = "2026-10-23"
+
+[[fato]]
+id = "A-0005"
+texto = "Matrícula com 50% de desconto até 31/12/2026."
+valores = ["50%"]
+status = "fornecido"
+categoria = "preco"
+contexto = ["matricula*", "desconto"]
+valido_ate = 2026-12-31
+[fato.fonte]
+tipo = "cliente_declarou"
+referencia = "FICTÍCIO: dado inventado para teste"
+informado_por = "equipe de teste"
+informado_em = "2026-10-23"

@@ -1,0 +1,19 @@
+# FATOS FICTÍCIOS de uma peça de teste (briefing). Mesmo formato de fatos.toml.
+
+[[fato]]
+id = "P-0001"
+texto = "A turma de sábado tem 15 vagas."
+valores = ["15"]
+status = "verificado"
+categoria = "institucional"
+contexto = ["turma", "vaga*"]
+[fato.fonte]
+tipo = "briefing"
+referencia = "FICTÍCIO: briefing de teste"
+informado_por = "equipe de teste"
+informado_em = "2026-10-23"
+[fato.verificacao]
+fonte = "FICTÍCIO: agenda de teste"
+metodo = "demonstração"
+verificado_por = "equipe de teste"
+verificado_em = "2026-10-23"

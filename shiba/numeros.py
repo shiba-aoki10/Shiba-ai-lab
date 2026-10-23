@@ -1,7 +1,7 @@
 """Detecção de números escritos com algarismos, em convenção pt-BR.
 
 Limitações conhecidas (ver docs/fase-1/INCREMENTO-0.md):
-- números por extenso ("três", "mil", "o dobro") NÃO são detectados;
+- números por extenso são tratados à parte, em `extenso.py`;
 - "1.500" é lido como mil e quinhentos (pt-BR), nunca como 1,5 (en-US);
 - sinal negativo é ignorado ("-5" vira 5);
 - números colados a letras ("covid19", "4K") SÃO detectados, de propósito.
@@ -64,13 +64,18 @@ def chave_de(token: str) -> tuple[str, str]:
     return ("percentual" if percentual else "valor", canonico)
 
 
-def extrair_numeros(texto: str) -> list[Numero]:
-    ignorar = (
+def zonas_ignoradas(texto: str) -> list[tuple[int, int]]:
+    """Trechos onde números não são afirmações: URL, e-mail, #hashtag, @menção, enumeração."""
+    return (
         intervalos(URL, texto)
         + intervalos(EMAIL, texto)
         + intervalos(_MARCADORES, texto)
         + intervalos(_ENUMERACAO, texto)
     )
+
+
+def extrair_numeros(texto: str) -> list[Numero]:
+    ignorar = zonas_ignoradas(texto)
     achados = []
     for m in _NUMERO.finditer(texto):
         if dentro(m.start(), ignorar) or _TECLA.match(texto, m.end()):
