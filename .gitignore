@@ -1,0 +1,15 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Segunda barreira contra dados reais (ver docs/fase-1/ESPECIFICACAO-MVP.md, seção 3.2).
+# Os dados reais ficam fora do repositório; estes padrões evitam commit acidental.
+# Âncoras "/" para não bloquear os modelos fictícios em modelos/clientes/.
+/clientes/
+/producao/
+/corpus/
+*.chave
+.env
+.env.*

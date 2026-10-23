@@ -1,0 +1,16 @@
+# CLIENTE FICTÍCIO. Nenhum dado aqui descreve uma pessoa ou empresa real.
+# Serve para demonstração e testes do Incremento 0.
+
+id = "exemplo"
+nome = "Padaria Exemplo (fictícia)"
+ficticio = true
+
+[hashtags]
+# Faixa definida pelo cliente. Valor de demonstração, não é recomendação de desempenho.
+minimo = 3
+maximo = 5
+proibidas = ["#sigam", "#sigoDeVolta", "#likeforlike"]
+
+[palavras_proibidas]
+# Comparação sem diferenciar maiúsculas e acentos, por palavra inteira.
+termos = ["garantido", "milagroso", "cura", "melhor do Brasil"]

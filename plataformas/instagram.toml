@@ -1,0 +1,20 @@
+# Perfil de plataforma: Instagram (feed e Reels).
+#
+# Cada limite registra status, fonte e data de consulta. Enquanto o status for
+# "a_verificar", ultrapassar o limite gera só AVISO, nunca bloqueio.
+# Para passar a "verificado", preencha fonte (URL da documentação oficial),
+# consultado_em (AAAA-MM-DD) e verificado_por. O motor recusa "verificado" sem
+# fonte e data.
+
+id = "instagram"
+nome = "Instagram"
+
+[limites.legenda_max_caracteres]
+valor = 2200
+status = "a_verificar"
+fonte = ""
+consultado_em = ""
+verificado_por = ""
+# Origem do valor preliminar: lib/approval.py do projeto auditado
+# sergebulaev/instagram-skills (commit 6a12448). Não é fonte oficial.
+referencia_preliminar = "instagram-skills lib/approval.py (2.200 caracteres)"
