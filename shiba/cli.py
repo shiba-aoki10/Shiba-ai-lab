@@ -4,6 +4,16 @@
   python -m shiba roteiro verificar ROTEIRO.toml --cliente ID [opções]
   python -m shiba calendario verificar CALENDARIO.toml --cliente ID [opções]
   python -m shiba config mostrar --cliente ID [--plataforma ID] [--dados [DIR]]
+  python -m shiba identidade cadastrar|revogar ...      (Incremento 4)
+  python -m shiba peca registrar|verificar|enviar|status|reconhecer|aprovar|rejeitar|
+                       validar-normativo|recusar-normativo|liberar ...
+  python -m shiba auditoria verificar|exportar-topo ...
+
+Fluxo de aprovação (Incremento 4): estado SEMPRE fora do Git (--estado DIR para
+clientes fictícios; o próprio diretório de --dados para reais). Decisões humanas
+exigem terminal interativo e a digitação do início do hash; isso é atrito de
+PROCESSO, não proteção criptográfica. Agentes de IA não executam decisões
+reais; --simulacao (só cliente fictício) marca tudo como simulação.
   python -m shiba dados verificar [DIR]
 
 Opções comuns:
@@ -27,7 +37,14 @@ import sys
 from datetime import date
 from pathlib import Path
 
-from . import api
+from . import api, fluxo
+from .aprovacao import (
+    APROVACAO_EDITORIAL,
+    RECUSA_NORMATIVA,
+    REJEICAO_EDITORIAL,
+    VALIDACAO_NORMATIVA,
+    ErroAprovacao,
+)
 from .api import ler_texto as ler_legenda  # noqa: F401  (compatibilidade)
 from .config import DIR_PLATAFORMAS, ErroConfig
 from .verificar import formatar_texto
@@ -88,11 +105,198 @@ def _parser() -> argparse.ArgumentParser:
     m.add_argument("--plataforma")
     _opcoes_de_origem(m)
 
+    _parser_fluxo(sub)
+
     d = sub.add_parser("dados", help="diretório de dados reais")
     d_sub = d.add_subparsers(dest="acao", required=True)
     dv = d_sub.add_parser("verificar", help="confere se o diretório de dados é seguro (não lista o conteúdo)")
     dv.add_argument("dir", nargs="?", default="")
     return p
+
+
+ATOS_CLI = {"aprovar": APROVACAO_EDITORIAL, "rejeitar": REJEICAO_EDITORIAL,
+            "validar-normativo": VALIDACAO_NORMATIVA, "recusar-normativo": RECUSA_NORMATIVA}
+
+
+def _opcoes_de_estado(p: argparse.ArgumentParser, simulacao: bool = False) -> None:
+    p.add_argument("--cliente", required=True)
+    p.add_argument("--estado", type=Path, help="diretório de estado fora do Git (clientes fictícios)")
+    p.add_argument("--dados", nargs="?", const="", default=None, metavar="DIR")
+    p.add_argument("--dir-clientes", type=Path, default=None)
+    p.add_argument("--dir-plataformas", type=Path, default=DIR_PLATAFORMAS)
+    p.add_argument("--data-referencia", type=_data)
+    p.add_argument("--formato", choices=("texto", "json"), default="texto")
+    if simulacao:
+        p.add_argument("--simulacao", action="store_true",
+                       help="decisão SIMULADA (só cliente fictício); nunca vale como aprovação real")
+
+
+def _parser_fluxo(sub) -> None:
+    i = sub.add_parser("identidade", help="cadastro controlado de identidades lógicas")
+    i_sub = i.add_subparsers(dest="acao", required=True)
+    ic = i_sub.add_parser("cadastrar")
+    ic.add_argument("--id", required=True)
+    ic.add_argument("--papel", action="append", required=True)
+    ic.add_argument("--processo", required=True, help="referência do processo de cadastro")
+    ic.add_argument("--por", required=True, help="identidade cadastradora (ou 'bootstrap')")
+    _opcoes_de_estado(ic, simulacao=True)
+    ir = i_sub.add_parser("revogar")
+    ir.add_argument("--id", required=True)
+    ir.add_argument("--por", required=True)
+    ir.add_argument("--motivo", required=True)
+    _opcoes_de_estado(ir, simulacao=True)
+
+    pc = sub.add_parser("peca", help="versões, revisão, decisões e liberação")
+    p_sub = pc.add_subparsers(dest="acao", required=True)
+    pr = p_sub.add_parser("registrar")
+    pr.add_argument("arquivo", type=Path)
+    pr.add_argument("--peca", required=True)
+    pr.add_argument("--tipo", choices=("legenda", "roteiro"), required=True)
+    pr.add_argument("--plataforma")
+    pr.add_argument("--autor", required=True)
+    pr.add_argument("--fatos-peca", type=Path)
+    _opcoes_de_estado(pr)
+    for nome in ("verificar", "status"):
+        x = p_sub.add_parser(nome)
+        x.add_argument("--peca", required=True)
+        if nome == "status":
+            x.add_argument("--arquivo", type=Path, help="arquivo de trabalho a comparar")
+        _opcoes_de_estado(x)
+    pe = p_sub.add_parser("enviar")
+    pe.add_argument("--peca", required=True)
+    pe.add_argument("--por", required=True)
+    _opcoes_de_estado(pe)
+    rc = p_sub.add_parser("reconhecer")
+    rc.add_argument("--peca", required=True)
+    rc.add_argument("--aviso", required=True)
+    rc.add_argument("--identidade", required=True)
+    rc.add_argument("--papel", required=True)
+    rc.add_argument("--justificativa", required=True)
+    _opcoes_de_estado(rc, simulacao=True)
+    for nome in ATOS_CLI:
+        x = p_sub.add_parser(nome)
+        x.add_argument("--peca", required=True)
+        x.add_argument("--identidade", required=True)
+        x.add_argument("--papel", required=True)
+        x.add_argument("--justificativa", default="")
+        _opcoes_de_estado(x, simulacao=True)
+    pl = p_sub.add_parser("liberar")
+    pl.add_argument("--peca", required=True)
+    pl.add_argument("--identidade", required=True)
+    _opcoes_de_estado(pl, simulacao=True)
+
+    a = sub.add_parser("auditoria", help="registro encadeado")
+    a_sub = a.add_subparsers(dest="acao", required=True)
+    av = a_sub.add_parser("verificar")
+    av.add_argument("--topo", type=Path, help="topo exportado antes, para comparar")
+    _opcoes_de_estado(av)
+    ae = a_sub.add_parser("exportar-topo")
+    ae.add_argument("--destino", type=Path, required=True)
+    _opcoes_de_estado(ae)
+
+
+def _confirmar(esperado: str, mensagem: str) -> None:
+    """Atrito de processo para decisões humanas. NÃO é proteção criptográfica."""
+    if not sys.stdin.isatty():
+        raise ErroAprovacao("decisão humana exige terminal interativo (ou --simulacao com cliente "
+                            "fictício)")
+    digitado = input(f"{mensagem}: ").strip()
+    if digitado != esperado:
+        raise ErroAprovacao("confirmação não confere; nada foi registrado")
+
+
+def _resumo_estado(e: dict) -> str:
+    linhas = [f"Peça {e.get('peca')} · versão {e.get('versao', '?')} · estado: {e['estado'].upper()}"]
+    if e.get("simulacao"):
+        linhas.append("SIMULAÇÃO: sem valor de aprovação real.")
+    if "hash_conteudo" in e:
+        linhas.append(f"hash do conteúdo: {e['hash_conteudo']}")
+    for chave, titulo in (("aprovacoes_editoriais", "aprovação editorial"),
+                          ("validacoes_normativas", "validação normativa")):
+        for a in e.get(chave, []):
+            linhas.append(f"  {titulo}: {a['identidade']} ({a['papel']}, {a['nivel']})")
+    for d in e.get("descartadas", []):
+        linhas.append(f"  descartada: {d['ato']} de {d['identidade']}: {d['motivo']}")
+    for p in e.get("pendencias", []):
+        linhas.append(f"  pendente: {p}")
+    if e.get("aviso_nivel"):
+        linhas.append(e["aviso_nivel"])
+    if e.get("arquivo_de_trabalho"):
+        linhas.append(f"arquivo de trabalho: {e['arquivo_de_trabalho']}")
+    if e.get("motivo"):
+        linhas.append(f"motivo: {e['motivo']}")
+    if e["estado"] == "aprovado":
+        linhas.append("Aprovado = conteúdo TEXTUAL aprovado por pessoas. Não é publicação, nem "
+                      "revisão do vídeo final.")
+    return "\n".join(linhas)
+
+
+def _saida(args, dados: dict, texto: str) -> None:
+    print(json.dumps(dados, ensure_ascii=False, indent=2) if args.formato == "json" else texto)
+
+
+def _executar_fluxo(args) -> int:
+    amb = fluxo.abrir(args.estado, args.dados, args.dir_clientes, args.dir_plataformas)
+    hoje = getattr(args, "data_referencia", None)
+    sim = getattr(args, "simulacao", False)
+    if args.comando == "identidade":
+        if not sim:
+            _confirmar(args.id, f"Digite o identificador '{args.id}' para confirmar")
+        if args.acao == "cadastrar":
+            r = fluxo.cadastrar_identidade(amb, args.cliente, args.id, args.papel, args.processo,
+                                           args.por, simulacao=sim)
+        else:
+            r = fluxo.revogar_identidade(amb, args.cliente, args.id, args.por, args.motivo, simulacao=sim)
+        _saida(args, r, f"registrado: {r['evento']} (seq {r['seq']})")
+        return 0
+    if args.comando == "auditoria":
+        if args.acao == "verificar":
+            r = fluxo.verificar_auditoria(amb, args.cliente, args.topo)
+            _saida(args, r, f"íntegro: seq {r['topo']['seq']}, topo {r['topo']['hash']}\n{r['observacao']}")
+        else:
+            r = fluxo.exportar_topo_auditoria(amb, args.cliente, args.destino)
+            _saida(args, r, f"topo exportado: seq {r['seq']}, {r['hash']}")
+        return 0
+    acao = args.acao
+    if acao == "registrar":
+        r = fluxo.registrar_versao(amb, args.cliente, args.peca, args.arquivo, args.tipo, args.autor,
+                                   args.plataforma, args.fatos_peca, hoje)
+        _saida(args, r, f"versão {r['dados']['versao']} registrada; hash {r['dados']['hash_conteudo']}")
+        return 0
+    if acao == "verificar":
+        r = fluxo.verificar_versao(amb, args.cliente, args.peca, hoje)
+        _saida(args, r, _resumo_estado(r["estado"]))
+        return 0
+    if acao == "status":
+        r = fluxo.status(amb, args.cliente, args.peca, hoje, args.arquivo)
+        _saida(args, r, _resumo_estado(r))
+        return 2 if r["estado"] == "integridade_nao_confirmada" else 0
+    if acao == "enviar":
+        r = fluxo.enviar_para_revisao(amb, args.cliente, args.peca, args.por, hoje)
+        _saida(args, r, _resumo_estado(r))
+        return 0
+    atual = fluxo.status(amb, args.cliente, args.peca, hoje)
+    if atual["estado"] == "integridade_nao_confirmada":
+        _saida(args, atual, _resumo_estado(atual))
+        return 2
+    vistos = {k: atual[k] for k in ("hash_conteudo", "hash_config", "hash_laudo")}
+    if not sim:
+        print(_resumo_estado(atual))
+        _confirmar(atual["hash_conteudo"][:8], "Digite os 8 primeiros caracteres do hash do conteúdo")
+    if acao == "reconhecer":
+        r = fluxo.reconhecer_aviso(amb, args.cliente, args.peca, args.aviso, args.identidade, args.papel,
+                                   args.justificativa, vistos, sim, hoje)
+    elif acao == "liberar":
+        r = fluxo.liberar(amb, args.cliente, args.peca, args.identidade, sim, hoje)
+        _saida(args, r, f"pacote: {r['pacote']}\nCONTEÚDO TEXTUAL APROVADO: não autoriza publicar a "
+                        "peça audiovisual sem revisão do vídeo final."
+                        + ("\nSIMULAÇÃO: NÃO PUBLICAR." if r["manifesto"]["simulacao"] else ""))
+        return 0
+    else:
+        r = fluxo.decidir(amb, args.cliente, args.peca, ATOS_CLI[acao], args.identidade, args.papel,
+                          args.justificativa, vistos, sim, hoje)
+    _saida(args, r, _resumo_estado(r))
+    return 0
 
 
 def formatar_generico(laudo: dict, arquivo: str = "") -> str:
@@ -130,6 +334,8 @@ def _imprimir(laudo: dict, args, formatador) -> int:
 
 
 def _executar(args) -> int:
+    if args.comando in ("identidade", "peca", "auditoria"):
+        return _executar_fluxo(args)
     if args.comando == "dados":
         resultado = api.checar_dados(args.dir)
         print("seguro: o diretório de dados está fora de qualquer repositório Git e do código.")
@@ -164,7 +370,7 @@ def main(argv: list[str] | None = None) -> int:
     args = _parser().parse_args(argv)
     try:
         return _executar(args)
-    except ErroConfig as e:
+    except (ErroConfig, ErroAprovacao) as e:
         prefixo = "inseguro" if args.comando == "dados" else "erro"
         print(f"{prefixo}: {e}", file=sys.stderr)
         return 2

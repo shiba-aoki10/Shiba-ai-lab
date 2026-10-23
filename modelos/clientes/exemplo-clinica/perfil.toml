@@ -14,9 +14,13 @@ maximo = 3
 termos = []
 
 [equipe]
-papeis = ["resp-01", "resp-02", "resp-03"]
+# Papéis FICTÍCIOS: resp-01 autor, resp-02 revisor, resp-03 validador
+# normativo, resp-04 cadastrador de identidades.
+papeis = ["resp-01", "resp-02", "resp-03", "resp-04"]
+autores = ["resp-01"]
 aprovadores = ["resp-02"]
 validadores_normativos = ["resp-03"]
+cadastradores = ["resp-04"]
 
 [normas]
 # Exemplo de FORMATO apenas: referência fictícia, sem valor normativo.

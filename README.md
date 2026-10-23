@@ -11,6 +11,7 @@ Fase 1, protótipo do motor editorial `shiba`: verificação local de legendas, 
 | 1 | Registro de fatos (fornecido, verificado, expirado, contestado), vínculo por valor, unidade e contexto, números por extenso, afirmações sensíveis, `fontes.md` | [`docs/fase-1/INCREMENTO-1.md`](docs/fase-1/INCREMENTO-1.md) |
 | 2 | Herança padrão → segmento → cliente (com ajustes por plataforma), perfis de Instagram, TikTok e YouTube Shorts sem limites inventados, isolamento de dados reais fora do Git | [`docs/fase-1/INCREMENTO-2.md`](docs/fase-1/INCREMENTO-2.md) |
 | 3 | Revisor editorial pt-BR (alertas explicáveis), roteiro audiovisual (cenas sequenciais × elementos simultâneos), calendário editorial, segmentos saúde/social/esportivo com validação normativa separada da técnica, API independente de interface | [`docs/fase-1/INCREMENTO-3.md`](docs/fase-1/INCREMENTO-3.md) |
+| 4 | Aprovação humana por papéis (editorial, validação normativa e liberação manual distintas), estado sempre calculado de eventos e hashes atuais, registro de auditoria encadeado, pacote de conteúdo TEXTUAL aprovado. Assinatura autenticada (4D) pendente | [`docs/fase-1/INCREMENTO-4.md`](docs/fase-1/INCREMENTO-4.md) |
 
 Visão geral e próximos passos: [`docs/fase-1/ESPECIFICACAO-MVP.md`](docs/fase-1/ESPECIFICACAO-MVP.md).
 
@@ -45,6 +46,8 @@ python3 -m unittest discover -s tests
 Códigos de saída: `0` passou, `1` bloqueado, `2` erro de uso ou configuração.
 
 > **Só texto.** Imagem, áudio e vídeo finais não são analisados.
+>
+> **Aprovação é humana.** O estado `aprovado` só vem de decisões humanas válidas (Incremento 4) e significa conteúdo TEXTUAL aprovado; aprovação declarativa não prova identidade.
 >
 > **"passou" não é aprovação.** O verificador aplica regras automáticas e heurísticas. Ele não garante que um texto seja verdadeiro, e a aprovação humana é sempre obrigatória.
 
