@@ -220,6 +220,11 @@ def regra_limite_caracteres(texto: str, plataforma: Plataforma) -> list[Achado]:
     limite = plataforma.legenda_max_caracteres
     if not texto.strip():
         return [Achado("limite_caracteres", BLOQUEANTE, "legenda vazia")]
+    if limite.valor is None:
+        # Nenhum valor conhecido: nada é inventado, e não há controle de tamanho.
+        return [Achado("limite_caracteres", INFO,
+                       f"{plataforma.nome} não tem limite de caracteres definido "
+                       f"(status '{limite.status}'); o tamanho não foi verificado")]
     achados = []
     if not limite.verificado:
         achados.append(Achado(

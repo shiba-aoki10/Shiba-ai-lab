@@ -1,0 +1,18 @@
+# Camada PADRÃO de plataforma: herdada por todos os perfis deste diretório.
+#
+# Declara QUAIS limites existem, todos sem valor e com status "a_verificar".
+# Nenhum número é inventado: um limite sem valor não é aplicado, e o laudo
+# avisa que o tamanho não foi verificado. Cada plataforma só ganha um valor
+# quando alguém o registra com fonte; só vira "verificado" com fonte oficial,
+# data de consulta e responsável.
+
+descricao = "Limites comuns, sem valor até haver fonte"
+texto_principal = "legenda"
+
+[limites.legenda_max_caracteres]
+status = "a_verificar"
+nota = "Sem valor: nenhum limite oficial verificado."
+
+[limites.duracao_max_segundos]
+status = "a_verificar"
+nota = "Sem valor: nenhum limite oficial verificado. Usado no futuro pelos roteiros."

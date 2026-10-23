@@ -1,0 +1,18 @@
+# Segmento GENÉRICO de demonstração: gastronomia.
+# Valores de configuração editorial de exemplo, NÃO recomendação de desempenho
+# e NÃO dados de nenhum cliente.
+
+id = "gastronomia"
+nome = "Gastronomia (modelo genérico)"
+
+[hashtags]
+minimo = 3
+maximo = 5
+proibidas = ["#sigam", "#likeforlike"]
+
+[palavras_proibidas]
+termos = ["milagr*", "light", "detox"]
+
+# Ajuste deste segmento só para TikTok (aplicado logo depois do segmento).
+[plataformas.tiktok.hashtags]
+maximo = 4

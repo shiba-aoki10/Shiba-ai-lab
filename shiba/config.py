@@ -7,11 +7,15 @@ from dataclasses import dataclass
 from datetime import date, datetime
 from pathlib import Path
 
+from .heranca import META, ErroHeranca, resolver, validar_camada
 from .unidades import normalizar as normalizar_unidade
 
 RAIZ = Path(__file__).resolve().parent.parent
 DIR_PLATAFORMAS = RAIZ / "plataformas"
-DIR_CLIENTES = RAIZ / "modelos" / "clientes"
+# Modelos versionados: padrão, segmentos genéricos e clientes FICTÍCIOS.
+DIR_MODELOS = RAIZ / "modelos"
+DIR_CLIENTES = DIR_MODELOS / "clientes"
+PADRAO_PLATAFORMA = "_padrao.toml"
 
 # Impede "../" e caminhos absolutos no id usado para montar caminhos.
 _ID = re.compile(r"[a-z0-9][a-z0-9-]{0,62}")
@@ -31,7 +35,7 @@ class ErroConfig(Exception):
 
 @dataclass(frozen=True)
 class Limite:
-    valor: int
+    valor: int | None  # None: nenhum valor conhecido (nada é inventado)
     status: str
     fonte: str
     consultado_em: str
@@ -46,6 +50,8 @@ class Plataforma:
     id: str
     nome: str
     legenda_max_caracteres: Limite
+    texto_principal: str = "legenda"                  # legenda | descricao
+    limites: tuple[tuple[str, Limite], ...] = ()      # todos os limites, por nome
 
 
 @dataclass(frozen=True)
@@ -81,14 +87,21 @@ def validar_id(valor: str, tipo: str) -> str:
     return valor
 
 
-def _ler_toml(caminho: Path) -> dict:
+def _ler_toml(caminho: Path, rotulo: str | None = None) -> dict:
+    """Lê TOML. `rotulo` substitui o caminho nas mensagens (dados reais).
+
+    A mensagem de erro do tomllib traz linha e coluna, nunca o conteúdo da linha.
+    """
+    nome = rotulo or caminho
     try:
         with caminho.open("rb") as f:
             return tomllib.load(f)
     except FileNotFoundError:
-        raise ErroConfig(f"arquivo não encontrado: {caminho}") from None
+        raise ErroConfig(f"arquivo não encontrado: {nome}") from None
     except tomllib.TOMLDecodeError as e:
-        raise ErroConfig(f"TOML inválido em {caminho}: {e}") from None
+        raise ErroConfig(f"TOML inválido em {nome}: {e}") from None
+    except OSError as e:
+        raise ErroConfig(f"não foi possível ler {nome}: {e.strerror}") from None
 
 
 def _campo(dados: dict, nome: str, tipo: type, origem: str):
@@ -110,10 +123,20 @@ def _lista_de_textos(dados: dict, nome: str, origem: str) -> tuple[str, ...]:
     return tuple(v.strip() for v in valores)
 
 
+CAMPOS_LIMITE = {"valor", "status", "fonte", "consultado_em", "verificado_por",
+                 "referencia_preliminar", "nota"}
+CHAVES_PLATAFORMA = {"id", "nome", "descricao", "texto_principal", "limites"}
+
+
 def _limite(dados: dict, origem: str) -> Limite:
-    valor = _campo(dados, "valor", int, origem)
-    if valor <= 0:
-        raise ErroConfig(f"{origem}: valor deve ser positivo")
+    desconhecidas = set(dados) - CAMPOS_LIMITE
+    if desconhecidas:
+        raise ErroConfig(f"{origem}: chave desconhecida: {sorted(desconhecidas)[0]}")
+    valor = None
+    if "valor" in dados:
+        valor = _campo(dados, "valor", int, origem)
+        if valor <= 0:
+            raise ErroConfig(f"{origem}: valor deve ser positivo")
     status = _campo(dados, "status", str, origem)
     if status not in STATUS_LIMITE:
         raise ErroConfig(f"{origem}: status deve ser um de {STATUS_LIMITE}")
@@ -121,35 +144,139 @@ def _limite(dados: dict, origem: str) -> Limite:
     consultado_em = dados.get("consultado_em", "")
     if status == "verificado" and not (str(fonte).strip() and str(consultado_em).strip()):
         raise ErroConfig(f"{origem}: limite 'verificado' exige fonte e consultado_em")
+    if status == "verificado" and valor is None:
+        raise ErroConfig(f"{origem}: limite 'verificado' exige valor")
     return Limite(valor, status, str(fonte), str(consultado_em))
 
 
+def _mesclar_tabelas(base: dict, cima: dict) -> dict:
+    """Mescla simples para perfis de plataforma: tabelas recursivas, resto substitui."""
+    saida = dict(base)
+    for chave, valor in cima.items():
+        if isinstance(valor, dict) and isinstance(saida.get(chave), dict):
+            saida[chave] = _mesclar_tabelas(saida[chave], valor)
+        else:
+            saida[chave] = valor
+    return saida
+
+
 def carregar_plataforma(plataforma_id: str, diretorio: Path = DIR_PLATAFORMAS) -> Plataforma:
+    """Perfil da plataforma herdando de `_padrao.toml` do mesmo diretório, se existir."""
     validar_id(plataforma_id, "plataforma")
     caminho = Path(diretorio) / f"{plataforma_id}.toml"
     dados = _ler_toml(caminho)
     origem = caminho.name
     if _campo(dados, "id", str, origem) != plataforma_id:
         raise ErroConfig(f"{origem}: id não corresponde ao nome do arquivo")
+    caminho_padrao = Path(diretorio) / PADRAO_PLATAFORMA
+    padrao = _ler_toml(caminho_padrao) if caminho_padrao.is_file() else {}
+    for camada, nome in ((padrao, PADRAO_PLATAFORMA), (dados, origem)):
+        desconhecidas = set(camada) - CHAVES_PLATAFORMA
+        if desconhecidas:
+            raise ErroConfig(f"{nome}: chave desconhecida: {sorted(desconhecidas)[0]}")
+    if "id" in padrao or "nome" in padrao:
+        raise ErroConfig(f"{PADRAO_PLATAFORMA}: o padrão não pode definir id nem nome")
+    dados = _mesclar_tabelas(padrao, dados)
     limites = _campo(dados, "limites", dict, origem)
-    legenda = _campo(limites, "legenda_max_caracteres", dict, origem)
+    convertidos = []
+    for nome_limite, bruto in limites.items():
+        if not isinstance(bruto, dict):
+            raise ErroConfig(f"{origem} [limites.{nome_limite}]: deve ser uma tabela")
+        convertidos.append((nome_limite, _limite(bruto, f"{origem} [limites.{nome_limite}]")))
+    por_nome = dict(convertidos)
+    if "legenda_max_caracteres" not in por_nome:
+        raise ErroConfig(f"{origem}: campo obrigatório ausente: legenda_max_caracteres")
+    texto_principal = dados.get("texto_principal", "legenda")
+    if texto_principal not in ("legenda", "descricao"):
+        raise ErroConfig(f"{origem}: texto_principal deve ser 'legenda' ou 'descricao'")
     return Plataforma(
         id=plataforma_id,
         nome=_campo(dados, "nome", str, origem),
-        legenda_max_caracteres=_limite(legenda, f"{origem} [limites.legenda_max_caracteres]"),
+        legenda_max_caracteres=por_nome["legenda_max_caracteres"],
+        texto_principal=texto_principal,
+        limites=tuple(convertidos),
     )
 
 
-def carregar_cliente(cliente_id: str, diretorio: Path = DIR_CLIENTES) -> Cliente:
+def _camada(caminho: Path, origem: str, tipo: str, rotulo: str | None = None,
+            opcional: bool = False) -> dict:
+    if opcional and not caminho.is_file():
+        return {}
+    dados = _ler_toml(caminho, rotulo)
+    try:
+        validar_camada(dados, origem, tipo)
+    except ErroHeranca as e:
+        raise ErroConfig(str(e)) from None
+    return dados
+
+
+def plataformas_disponiveis(diretorio: Path = DIR_PLATAFORMAS) -> set[str]:
+    return {p.stem for p in Path(diretorio).glob("*.toml") if not p.name.startswith("_")}
+
+
+def configuracao_efetiva(cliente_id: str, diretorio: Path = DIR_CLIENTES, *,
+                         plataforma: str | None = None, dir_modelos: Path = DIR_MODELOS,
+                         rotulo: str | None = None,
+                         plataformas_validas: set[str] | None = None) -> tuple[dict, dict, dict]:
+    """Mescla padrão → segmento → cliente (cada um com seu ajuste @plataforma).
+
+    Devolve (perfil do cliente como escrito, configuração efetiva, origens).
+    `rotulo` troca o diretório nas mensagens (ex.: "$SHIBA_DADOS/clientes").
+    O padrão e os segmentos vêm SEMPRE dos modelos versionados (`dir_modelos`):
+    são genéricos e não contêm dados de clientes.
+    """
     validar_id(cliente_id, "cliente")
-    caminho = Path(diretorio) / cliente_id / "perfil.toml"
-    dados = _ler_toml(caminho)
-    origem = f"{cliente_id}/perfil.toml"
-    if _campo(dados, "id", str, origem) != cliente_id:
+    if plataforma is not None:
+        validar_id(plataforma, "plataforma")
+    origem = f"{rotulo}/{cliente_id}/perfil.toml" if rotulo else f"{cliente_id}/perfil.toml"
+    perfil = _camada(Path(diretorio) / cliente_id / "perfil.toml", origem, "cliente",
+                     origem if rotulo else None)
+    camadas = [("padrao", _camada(Path(dir_modelos) / "padrao.toml", "padrao.toml", "padrao",
+                                  opcional=True))]
+    if "segmento" in perfil:
+        segmento = validar_id(_campo(perfil, "segmento", str, origem), "segmento")
+        camadas.append((f"segmento:{segmento}",
+                        _camada(Path(dir_modelos) / "segmentos" / f"{segmento}.toml",
+                                f"segmentos/{segmento}.toml", "segmento")))
+    camadas.append(("cliente", perfil))
+    if plataformas_validas is not None:
+        # Um ajuste para plataforma inexistente ("tiktk") seria ignorado em silêncio.
+        for nome, dados in camadas:
+            for pid in dados.get("plataformas", {}):
+                if pid not in plataformas_validas:
+                    raise ErroConfig(f"{nome}: [plataformas.{pid}] não corresponde a nenhum "
+                                     "perfil de plataforma")
+    sem_meta = []
+    for nome, dados in camadas:
+        tipo = "segmento" if nome.startswith("segmento:") else nome
+        sem_meta.append((nome, {k: v for k, v in dados.items() if k not in META[tipo]}))
+    try:
+        efetiva, origens = resolver(sem_meta, plataforma)
+    except ErroHeranca as e:
+        raise ErroConfig(str(e)) from None
+    return perfil, efetiva, origens
+
+
+def carregar_cliente(cliente_id: str, diretorio: Path = DIR_CLIENTES, *,
+                     plataforma: str | None = None, dir_modelos: Path = DIR_MODELOS,
+                     exigir_ficticio: bool = True, rotulo: str | None = None,
+                     plataformas_validas: set[str] | None = None) -> Cliente:
+    """Cliente com a configuração efetiva (herança aplicada).
+
+    `exigir_ficticio=True` (modelos versionados) recusa qualquer perfil sem
+    `ficticio = true`. Dados reais só entram com `exigir_ficticio=False`,
+    a partir de um diretório validado por `dados.preparar_dir_dados`.
+    """
+    perfil, dados, _ = configuracao_efetiva(cliente_id, diretorio, plataforma=plataforma,
+                                            dir_modelos=dir_modelos, rotulo=rotulo,
+                                            plataformas_validas=plataformas_validas)
+    origem = f"{rotulo}/{cliente_id}/perfil.toml" if rotulo else f"{cliente_id}/perfil.toml"
+    if _campo(perfil, "id", str, origem) != cliente_id:
         raise ErroConfig(f"{origem}: id não corresponde ao diretório")
-    # Incremento 0: só clientes fictícios (nenhum dado real).
-    if _campo(dados, "ficticio", bool, origem) is not True:
-        raise ErroConfig(f"{origem}: o protótipo aceita apenas clientes com ficticio = true")
+    ficticio = _campo(perfil, "ficticio", bool, origem)
+    if exigir_ficticio and ficticio is not True:
+        raise ErroConfig(f"{origem}: os modelos versionados aceitam apenas clientes com "
+                         "ficticio = true")
     hashtags = _campo(dados, "hashtags", dict, origem)
     minimo = _campo(hashtags, "minimo", int, f"{origem} [hashtags]")
     maximo = _campo(hashtags, "maximo", int, f"{origem} [hashtags]")
@@ -167,8 +294,8 @@ def carregar_cliente(cliente_id: str, diretorio: Path = DIR_CLIENTES) -> Cliente
             raise ErroConfig(f"{origem} [fatos]: categoria desconhecida {cat!r}")
     return Cliente(
         id=cliente_id,
-        nome=_campo(dados, "nome", str, origem),
-        ficticio=True,
+        nome=_campo(perfil, "nome", str, origem),
+        ficticio=ficticio,
         hashtags_minimo=minimo,
         hashtags_maximo=maximo,
         hashtags_proibidas=tuple(p.lstrip("#") for p in proibidas),
@@ -245,7 +372,7 @@ def carregar_fatos_arquivo(caminho: Path, origem: str | None = None) -> tuple[Fa
     """Carrega [[fato]] de um arquivo TOML (registro do cliente ou fatos da peça)."""
     caminho = Path(caminho)
     origem = origem or caminho.name
-    dados = _ler_toml(caminho)
+    dados = _ler_toml(caminho, origem)
     brutos = dados.get("fato", [])
     if not isinstance(brutos, list):
         raise ErroConfig(f"{origem}: use [[fato]] para cada fato")
@@ -262,10 +389,11 @@ def carregar_fatos_arquivo(caminho: Path, origem: str | None = None) -> tuple[Fa
     return tuple(fatos)
 
 
-def carregar_fatos(cliente_id: str, diretorio: Path = DIR_CLIENTES) -> tuple[Fato, ...]:
+def carregar_fatos(cliente_id: str, diretorio: Path = DIR_CLIENTES, *,
+                   rotulo: str | None = None) -> tuple[Fato, ...]:
     validar_id(cliente_id, "cliente")
-    return carregar_fatos_arquivo(Path(diretorio) / cliente_id / "fatos.toml",
-                                  f"{cliente_id}/fatos.toml")
+    origem = f"{rotulo}/{cliente_id}/fatos.toml" if rotulo else f"{cliente_id}/fatos.toml"
+    return carregar_fatos_arquivo(Path(diretorio) / cliente_id / "fatos.toml", origem)
 
 
 def juntar_fatos(*grupos: tuple[Fato, ...]) -> tuple[Fato, ...]:

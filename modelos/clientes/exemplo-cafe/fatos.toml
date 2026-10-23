@@ -1,0 +1,20 @@
+# FATOS FICTÍCIOS do cliente de demonstração "exemplo-cafe".
+
+[[fato]]
+id = "C-0001"
+texto = "O Café Exemplo abre às 7h."
+valores = ["7"]
+status = "verificado"
+categoria = "institucional"
+contexto = ["abr*", "funciona*"]
+unidade = "hora"
+[fato.fonte]
+tipo = "documento_interno"
+referencia = "FICTÍCIO: dado inventado para teste"
+informado_por = "equipe de teste"
+informado_em = "2026-10-23"
+[fato.verificacao]
+fonte = "FICTÍCIO: documento de teste"
+metodo = "demonstração"
+verificado_por = "equipe de teste"
+verificado_em = "2026-10-23"

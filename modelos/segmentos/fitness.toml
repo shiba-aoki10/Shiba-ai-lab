@@ -1,0 +1,14 @@
+# Segmento GENÉRICO de demonstração: fitness.
+# Valores de configuração editorial de exemplo, NÃO recomendação de desempenho
+# e NÃO dados de nenhum cliente.
+
+id = "fitness"
+nome = "Fitness (modelo genérico)"
+
+[hashtags]
+minimo = 2
+maximo = 5
+proibidas = ["#sigam"]
+
+[palavras_proibidas]
+termos = ["milagr*", "sem esforço", "queima garantida"]

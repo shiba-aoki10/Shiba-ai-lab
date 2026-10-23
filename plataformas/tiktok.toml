@@ -1,0 +1,10 @@
+# Perfil de plataforma: TikTok.
+#
+# NENHUM limite tem valor: nenhum foi verificado em fonte oficial, e este
+# arquivo não inventa números. Para ativar um limite, preencha valor, fonte
+# (URL da documentação oficial), consultado_em e verificado_por, e mude o
+# status para "verificado". Enquanto isso, o tamanho do texto não é checado.
+
+id = "tiktok"
+nome = "TikTok"
+texto_principal = "legenda"

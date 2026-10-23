@@ -1,0 +1,29 @@
+# CLIENTE FICTÍCIO. Nenhum dado aqui descreve uma pessoa ou empresa real.
+# Demonstra a herança: padrão → segmento gastronomia → este cliente,
+# com ajustes por plataforma.
+
+id = "exemplo-cafe"
+nome = "Café Exemplo (fictício)"
+ficticio = true
+segmento = "gastronomia"
+
+[hashtags]
+minimo = 2                   # substitui o 3 do segmento
+maximo = 4                   # substitui o 5 do segmento
+proibidas = ["#cafezinho"]   # SOMA às do segmento
+
+[palavras_proibidas]
+termos__remover = ["light"]  # tira um termo herdado do segmento
+termos = ["barato"]          # e soma um termo próprio
+
+# Ajustes só quando a peça é para TikTok.
+[plataformas.tiktok.hashtags]
+maximo = 3
+
+[plataformas.tiktok.palavras_proibidas]
+termos = ["promoção"]
+
+# Ajustes só quando a peça é para YouTube Shorts.
+[plataformas.youtube-shorts.hashtags]
+minimo = 0
+proibidas__substituir = ["#shorts"]  # troca a lista herdada inteira

@@ -1,0 +1,14 @@
+# Perfil de plataforma: YouTube Shorts.
+#
+# NENHUM limite tem valor: nenhum foi verificado em fonte oficial, e este
+# arquivo não inventa números. O texto verificado é a DESCRIÇÃO do vídeo.
+# Para ativar um limite, preencha valor, fonte (URL da documentação oficial),
+# consultado_em e verificado_por, e mude o status para "verificado".
+
+id = "youtube-shorts"
+nome = "YouTube Shorts"
+texto_principal = "descricao"
+
+[limites.titulo_max_caracteres]
+status = "a_verificar"
+nota = "Sem valor: nenhum limite oficial verificado. Ainda não usado pelas regras."

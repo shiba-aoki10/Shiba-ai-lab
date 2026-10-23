@@ -1,0 +1,19 @@
+# Camada PADRÃO: herdada por todo cliente (antes do segmento e do cliente).
+# Genérica e versionada. Não contém dados de clientes.
+#
+# É neutra de propósito: não define faixa de hashtags nem palavras proibidas,
+# porque isso é decisão editorial de cada segmento ou cliente (não há valor
+# "certo" verificado). Se nenhuma camada definir [hashtags] minimo/maximo, o
+# motor recusa o cliente em vez de supor um valor.
+
+descricao = "Padrão genérico do Shiba"
+
+[hashtags]
+proibidas = []
+
+[palavras_proibidas]
+termos = []
+
+[fatos]
+# Categorias que exigem fato VERIFICADO (ver docs/fase-1/INCREMENTO-1.md).
+categorias_sensiveis = ["saude", "financeiro", "comparativo", "resultado"]
