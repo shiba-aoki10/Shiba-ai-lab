@@ -49,11 +49,16 @@ ESQUEMA = {
     # Incremento 3C: calendário editorial e equipe (só identificadores de papel).
     "calendario": {"status_exigem_arquivo": list, "max_pecas_por_responsavel_dia": int,
                    "pilares": list},
-    "equipe": {"papeis": list, "aprovadores": list, "validadores_normativos": list},
+    "equipe": {"papeis": list, "aprovadores": list, "validadores_normativos": list,
+               # Incremento 4B: quem registra versões e quem cadastra identidades.
+               "autores": list, "cadastradores": list},
     "revisao": {"exige_validacao_normativa": bool,
                 # Incremento 3D: o que exige validação normativa (sem interpretar normas).
                 "categorias_validacao_normativa": list, "listas_validacao": list,
-                "aprovacoes_sugeridas": int},
+                "aprovacoes_sugeridas": int,
+                # Incremento 4B: política de aprovação (configurável, não é norma).
+                "aprovacoes_minimas": int, "revisao_independente": bool,
+                "validacao_normativa_independente": bool, "nivel_minimo": str},
     # Referências normativas CADASTRADAS PELO CLIENTE, com fonte; o motor só as lista.
     "normas": {"referencias": list},
 }

@@ -3,4 +3,4 @@
 Só a biblioteca padrão do Python. Sem rede, sem LLM, sem credenciais.
 """
 
-__version__ = "0.1.0"
+__version__ = "0.4.0"

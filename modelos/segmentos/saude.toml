@@ -16,7 +16,13 @@ nome = "Saúde (modelo genérico)"
 exige_validacao_normativa = true
 categorias_validacao_normativa = ["saude"]
 listas_validacao = ["saude"]
-aprovacoes_sugeridas = 2   # sugestão para o Incremento 4; o cliente decide
+aprovacoes_sugeridas = 2   # mantido por compatibilidade
+# POLÍTICA INICIAL configurável, adotada por prudência. NÃO afirma que este
+# quórum seja exigido por lei ou norma: o cliente e seu responsável decidem.
+aprovacoes_minimas = 2
+validacao_normativa_independente = true
+# Recomendado para clientes reais: nivel_minimo = "autenticada", SÓ depois que a
+# infraestrutura de assinatura (Incremento 4D) existir e for autorizada.
 
 [normas]
 referencias = []           # o cliente cadastra, com fonte e status

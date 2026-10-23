@@ -16,6 +16,9 @@ REGRAS_EDITORIAIS = (
     "repeticao_palavra", "repeticao_inicio", "adverbios_mente", "pontuacao", "caixa_alta",
 )
 
+# Nível de garantia de uma decisão: declarativa (sem prova de identidade) <
+# autenticada (assinatura criptográfica; Incremento 4D, ainda não disponível).
+NIVEIS = ("declarativa", "autenticada")
 CAMPOS_NORMA = {"titulo", "fonte", "status", "consultado_em", "verificado_por", "nota"}
 _PAPEL = re.compile(r"[a-z0-9][a-z0-9-]{0,62}")
 
@@ -45,7 +48,7 @@ def validar_secoes(efetiva: dict, origem: str) -> None:
         if not isinstance(valor, bool) and isinstance(valor, (int, float)) and valor <= 0:
             raise ErroSecao(f"{origem} [roteiro]: {chave} deve ser positivo")
     equipe = efetiva.get("equipe", {})
-    for chave in ("papeis", "aprovadores", "validadores_normativos"):
+    for chave in ("papeis", "aprovadores", "validadores_normativos", "autores", "cadastradores"):
         for papel in _lista_textos(equipe.get(chave, []), chave, origem):
             if not _PAPEL.fullmatch(papel):
                 raise ErroSecao(f"{origem} [equipe]: {chave} aceita só identificadores de papel "
@@ -53,8 +56,11 @@ def validar_secoes(efetiva: dict, origem: str) -> None:
     revisao = efetiva.get("revisao", {})
     for chave in ("categorias_validacao_normativa", "listas_validacao"):
         _lista_textos(revisao.get(chave, []), chave, origem)
-    if revisao.get("aprovacoes_sugeridas", 1) < 1:
-        raise ErroSecao(f"{origem} [revisao]: aprovacoes_sugeridas deve ser positivo")
+    for chave in ("aprovacoes_sugeridas", "aprovacoes_minimas"):
+        if revisao.get(chave, 1) < 1:
+            raise ErroSecao(f"{origem} [revisao]: {chave} deve ser positivo")
+    if revisao.get("nivel_minimo", "declarativa") not in NIVEIS:
+        raise ErroSecao(f"{origem} [revisao]: nivel_minimo deve ser um de {NIVEIS}")
     for n, ref in enumerate(efetiva.get("normas", {}).get("referencias", []), 1):
         local = f"{origem} [normas] referência #{n}"
         if not isinstance(ref, dict) or set(ref) - CAMPOS_NORMA:
@@ -68,7 +74,7 @@ def validar_secoes(efetiva: dict, origem: str) -> None:
                 str(ref.get(c, "")).strip() for c in ("fonte", "consultado_em", "verificado_por")):
             raise ErroSecao(f"{local}: 'verificado' exige fonte, consultado_em e verificado_por")
     papeis = set(equipe.get("papeis", []))
-    for chave in ("aprovadores", "validadores_normativos"):
+    for chave in ("aprovadores", "validadores_normativos", "autores", "cadastradores"):
         fora = [p for p in equipe.get(chave, []) if p not in papeis]
         if fora:
             raise ErroSecao(f"{origem} [equipe]: {chave} cita papel fora de papeis: {fora[0]}")
