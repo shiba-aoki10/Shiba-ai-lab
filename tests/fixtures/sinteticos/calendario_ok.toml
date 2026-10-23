@@ -1,0 +1,33 @@
+# CALENDÁRIO FICTÍCIO (cliente exemplo-cafe). Papéis, nunca nomes.
+titulo = "Semana de teste"
+inicio = 2026-11-02
+fim = 2026-11-08
+
+[[peca]]
+id = "p1"
+data = 2026-11-02
+hora = "08:00"
+plataforma = "instagram"
+formato = "post"
+responsavel = "resp-01"
+status = "aprovado"
+aprovado_por = "resp-02"
+arquivo = "legenda_passa.md"
+pilar = "produto"
+
+[[peca]]
+id = "p2"
+data = 2026-11-04
+plataforma = "tiktok"
+formato = "video"
+responsavel = "resp-03"
+status = "em_producao"
+pilar = "bastidores"
+
+[[peca]]
+id = "p3"
+data = 2026-11-06
+plataforma = "youtube-shorts"
+responsavel = "resp-01"
+status = "planejado"
+pilar = "comunidade"

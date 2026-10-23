@@ -2,6 +2,7 @@
 
   python -m shiba verificar ARQUIVO --cliente ID --plataforma ID [opções]
   python -m shiba roteiro verificar ROTEIRO.toml --cliente ID [opções]
+  python -m shiba calendario verificar CALENDARIO.toml --cliente ID [opções]
   python -m shiba config mostrar --cliente ID [--plataforma ID] [--dados [DIR]]
   python -m shiba dados verificar [DIR]
 
@@ -73,6 +74,14 @@ def _parser() -> argparse.ArgumentParser:
     _opcoes_de_peca(rv)
     _opcoes_de_origem(rv)
 
+    k = sub.add_parser("calendario", help="calendário editorial")
+    k_sub = k.add_subparsers(dest="acao", required=True)
+    kv = k_sub.add_parser("verificar", help="verifica um calendário TOML")
+    kv.add_argument("arquivo", type=Path)
+    kv.add_argument("--formato", choices=("texto", "json"), default="texto")
+    kv.add_argument("--data-referencia", type=_data)
+    _opcoes_de_origem(kv)
+
     c = sub.add_parser("config", help="configuração efetiva de um cliente")
     c_sub = c.add_subparsers(dest="acao", required=True)
     m = c_sub.add_parser("mostrar", help="mostra a configuração após a herança e a origem de cada valor")
@@ -134,6 +143,11 @@ def _executar(args) -> int:
                                           dir_plataformas=args.dir_plataformas),
                          ensure_ascii=False, indent=2))
         return 0
+    if args.comando == "calendario":
+        laudo = api.verificar_calendario_arquivo(args.arquivo, args.cliente, o,
+                                                 dir_plataformas=args.dir_plataformas,
+                                                 hoje=args.data_referencia)
+        return _imprimir(laudo, args, formatar_generico)
     if args.comando == "roteiro":
         laudo = api.verificar_roteiro_arquivo(args.arquivo, args.cliente, o,
                                               dir_plataformas=args.dir_plataformas,

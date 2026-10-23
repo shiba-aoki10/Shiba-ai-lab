@@ -27,3 +27,12 @@ termos = ["promoção"]
 [plataformas.youtube-shorts.hashtags]
 minimo = 0
 proibidas__substituir = ["#shorts"]  # troca a lista herdada inteira
+
+# Equipe FICTÍCIA: só identificadores de papel, nunca nomes.
+[equipe]
+papeis = ["resp-01", "resp-02", "resp-03"]
+aprovadores = ["resp-02"]
+
+[calendario]
+pilares = ["bastidores", "produto", "comunidade"]
+max_pecas_por_responsavel_dia = 2

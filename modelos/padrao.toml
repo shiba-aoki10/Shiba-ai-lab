@@ -44,3 +44,21 @@ caixa_alta_min_palavras = 3
 janela_gancho_s = 3            # segundos iniciais em que se espera o gancho
 tolerancia_duracao_pct = 15    # desvio aceito entre duração das cenas e o alvo
 texto_tela_max_palavras = 7    # palavras por texto na tela
+
+[calendario]
+# Calendário editorial (Incremento 3C).
+# Arquivo final só é exigido a partir destes status (durante o planejamento,
+# não). max_pecas_por_responsavel_dia e pilares ficam a cargo do cliente.
+status_exigem_arquivo = ["pronto", "aprovado", "agendado", "publicado"]
+
+[equipe]
+# Só IDENTIFICADORES DE PAPEL (ex.: "resp-01"). Nomes de pessoas nunca entram
+# no repositório: o mapa papel → pessoa, se existir, fica fora do Git.
+papeis = []
+aprovadores = []
+validadores_normativos = []
+
+[revisao]
+# Se verdadeiro, toda peça do cliente exige validação normativa registrada
+# antes de qualquer status de aprovação (o segmento saude liga por padrão).
+exige_validacao_normativa = false

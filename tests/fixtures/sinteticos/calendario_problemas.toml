@@ -1,0 +1,27 @@
+# CALENDÁRIO FICTÍCIO com problemas de propósito (cliente exemplo-cafe).
+inicio = 2026-11-02
+fim = 2026-11-08
+
+[[peca]]
+id = "p1"
+data = 2026-11-03
+hora = "09:00"
+plataforma = "instagram"
+responsavel = "resp-01"
+status = "pronto"
+
+[[peca]]
+id = "p1"
+data = 2026-11-03
+hora = "09:00"
+plataforma = "instagram"
+responsavel = "RESP 01"
+status = "agendado"
+arquivo = "nao-existe.md"
+
+[[peca]]
+id = "p3"
+data = 2026-11-20
+plataforma = "orkut"
+responsavel = ""
+status = "rascunho"

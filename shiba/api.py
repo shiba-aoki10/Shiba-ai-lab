@@ -34,6 +34,7 @@ from .config import (
     plataformas_disponiveis,
 )
 from .dados import garantir_fora_do_git, permissoes_abertas, preparar_dir_dados, resolver_dir_dados
+from .calendario import caminho_do_arquivo, carregar_calendario, verificar_calendario
 from .fontes import gerar_fontes_md
 from .roteiro import carregar_roteiro
 from .verificar import verificar
@@ -143,6 +144,21 @@ def verificar_roteiro_arquivo(caminho: Path, cliente_id: str, o: Origem, *,
     ctx = contexto(cliente_id, roteiro.plataforma, o, dir_plataformas=dir_plataformas,
                    fatos_peca=fatos_peca)
     return verificar_roteiro(roteiro, ctx.cliente, ctx.fatos, ctx.plataforma, hoje)
+
+
+def verificar_calendario_arquivo(caminho: Path, cliente_id: str, o: Origem, *,
+                                 dir_plataformas: Path = DIR_PLATAFORMAS,
+                                 hoje: date | None = None) -> dict:
+    """Laudo de um calendário TOML. Arquivos citados são relativos à pasta do calendário."""
+    caminho = Path(caminho)
+    proteger(o, caminho, "o arquivo do calendário")
+    cal = carregar_calendario(caminho, "calendario" if o.real else None)
+    base = caminho.parent
+    for p in cal.pecas:
+        proteger(o, caminho_do_arquivo(base, p.arquivo), "um arquivo citado no calendário")
+    validas = plataformas_disponiveis(dir_plataformas)
+    cliente = carregar_cliente(cliente_id, o.dir_clientes, plataformas_validas=validas, **o.opcoes)
+    return verificar_calendario(cal, cliente, validas, hoje, base)
 
 
 def configuracao(cliente_id: str, plataforma_id: str | None, o: Origem, *,

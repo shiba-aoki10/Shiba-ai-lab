@@ -46,6 +46,11 @@ ESQUEMA = {
         "palavras_por_segundo": NUMERO, "janela_gancho_s": NUMERO,
         "tolerancia_duracao_pct": NUMERO, "texto_tela_max_palavras": int,
     },
+    # Incremento 3C: calendário editorial e equipe (só identificadores de papel).
+    "calendario": {"status_exigem_arquivo": list, "max_pecas_por_responsavel_dia": int,
+                   "pilares": list},
+    "equipe": {"papeis": list, "aprovadores": list, "validadores_normativos": list},
+    "revisao": {"exige_validacao_normativa": bool},
 }
 
 
