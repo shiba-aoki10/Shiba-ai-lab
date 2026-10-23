@@ -1,0 +1,275 @@
+# Léxico editorial pt-BR do Shiba (Incremento 3A).
+#
+# NADA aqui é proibição. Cada entrada gera um ALERTA explicável (info ou
+# aviso) para revisão humana. Uma expressão listada pode estar correta no
+# contexto; quem decide é a pessoa que revisa.
+#
+# Categorias:
+#   ia      expressões que aparecem com frequência em textos gerados por IA
+#           (sozinhas são comuns; o alerta sobe para aviso quando se acumulam
+#           no mesmo parágrafo, conforme [editorial] ia_por_paragrafo_aviso)
+#   cliche  frases feitas que costumam enfraquecer o texto
+#   muleta  palavras de apoio que raramente acrescentam sentido
+#
+# Campos: termo (com "*" no fim = prefixo), categoria, justificativa, sugestao,
+# severidade opcional (info | aviso; padrão info).
+# Comparação sem maiúsculas e sem acentos, por palavra ou expressão inteira.
+# Fonte: curadoria editorial interna; NÃO é medição de detector de IA.
+
+versao = 1
+
+[stopwords]
+# Palavras ignoradas na detecção de repetição.
+palavras = [
+  "a", "o", "as", "os", "um", "uma", "uns", "umas", "de", "do", "da", "dos", "das",
+  "em", "no", "na", "nos", "nas", "por", "pelo", "pela", "pelos", "pelas", "para", "pra",
+  "com", "sem", "sob", "sobre", "entre", "ate", "apos", "desde", "contra", "e", "ou", "mas",
+  "que", "se", "como", "quando", "onde", "porque", "pois", "porem", "entao", "tambem",
+  "muito", "muita", "muitos", "muitas", "mais", "menos", "ja", "ainda", "so", "bem", "nao",
+  "sim", "ser", "estar", "ter", "haver", "fazer", "foi", "era", "sao", "esta", "estao",
+  "tem", "isso", "isto", "aquilo", "esse", "essa", "esses", "essas", "este", "esta",
+  "estes", "estas", "aquele", "aquela", "seu", "sua", "seus", "suas", "meu", "minha",
+  "nosso", "nossa", "nossos", "nossas", "voce", "voces", "ele", "ela", "eles", "elas",
+  "nos", "eu", "lhe", "todo", "toda", "todos", "todas", "cada", "outro", "outra", "mesmo",
+  "mesma", "aqui", "ali", "agora", "hoje", "sempre", "nunca", "pode", "podem", "vai", "vao",
+]
+
+[[expressao]]
+termo = "no cenário atual"
+categoria = "ia"
+justificativa = "Abertura genérica que não informa qual cenário."
+sugestao = "Diga o fato concreto que mudou, com data ou exemplo."
+
+[[expressao]]
+termo = "no mundo atual"
+categoria = "ia"
+justificativa = "Generalização vaga, comum em textos automáticos."
+sugestao = "Troque por um exemplo específico do público ou do mercado."
+
+[[expressao]]
+termo = "nos dias de hoje"
+categoria = "ia"
+justificativa = "Marcador temporal vago."
+sugestao = "Use a data, o período ou o acontecimento real."
+
+[[expressao]]
+termo = "em um mundo cada vez mais"
+categoria = "ia"
+justificativa = "Fórmula de abertura muito repetida."
+sugestao = "Comece pelo problema concreto do leitor."
+
+[[expressao]]
+termo = "vale ressaltar"
+categoria = "ia"
+justificativa = "Anuncia a importância em vez de demonstrá-la."
+sugestao = "Diga diretamente a informação."
+
+[[expressao]]
+termo = "vale destacar"
+categoria = "ia"
+justificativa = "Anuncia a importância em vez de demonstrá-la."
+sugestao = "Diga diretamente a informação."
+
+[[expressao]]
+termo = "é importante destacar"
+categoria = "ia"
+justificativa = "Anuncia a importância em vez de demonstrá-la."
+sugestao = "Corte a expressão e mantenha só o conteúdo."
+
+[[expressao]]
+termo = "é importante ressaltar"
+categoria = "ia"
+justificativa = "Anuncia a importância em vez de demonstrá-la."
+sugestao = "Corte a expressão e mantenha só o conteúdo."
+
+[[expressao]]
+termo = "desempenha um papel fundamental"
+categoria = "ia"
+justificativa = "Afirmação abstrata, sem dizer qual papel."
+sugestao = "Explique o que, concretamente, acontece."
+
+[[expressao]]
+termo = "papel crucial"
+categoria = "ia"
+justificativa = "Intensificador abstrato."
+sugestao = "Mostre o efeito concreto."
+
+[[expressao]]
+termo = "mergulh* fundo"
+categoria = "ia"
+justificativa = "Metáfora desgastada, frequente em textos automáticos."
+sugestao = "Diga o que será mostrado ou explicado."
+
+[[expressao]]
+termo = "desbloque* todo o potencial"
+categoria = "ia"
+justificativa = "Promessa vaga e genérica."
+sugestao = "Descreva o benefício específico e verificável."
+
+[[expressao]]
+termo = "potencializ*"
+categoria = "ia"
+justificativa = "Verbo genérico; raramente diz o que muda."
+sugestao = "Use um verbo concreto: aumentar, reduzir, acelerar (com o quê e quanto, se houver fato)."
+
+[[expressao]]
+termo = "alavanc*"
+categoria = "ia"
+justificativa = "Jargão corporativo pouco informativo."
+sugestao = "Diga a ação concreta."
+
+[[expressao]]
+termo = "próximo nível"
+categoria = "ia"
+justificativa = "Promessa vaga."
+sugestao = "Diga qual resultado concreto, se houver fato que o sustente."
+
+[[expressao]]
+termo = "não é apenas"
+categoria = "ia"
+justificativa = "Estrutura \"não é apenas X, é Y\" muito repetida em textos automáticos."
+sugestao = "Afirme Y diretamente."
+
+[[expressao]]
+termo = "mais do que nunca"
+categoria = "ia"
+justificativa = "Intensificador sem base temporal."
+sugestao = "Mostre o dado ou o fato que justifica a urgência."
+
+[[expressao]]
+termo = "em suma"
+categoria = "ia"
+justificativa = "Fecho formal, pouco natural em redes sociais."
+sugestao = "Termine com a ideia principal ou a chamada para ação."
+
+[[expressao]]
+termo = "além disso"
+categoria = "ia"
+justificativa = "Conector correto, mas em excesso deixa o texto mecânico."
+sugestao = "Verifique se a ligação é necessária; frases curtas dispensam conector."
+
+[[expressao]]
+termo = "dessa forma"
+categoria = "ia"
+justificativa = "Conector correto, mas em excesso deixa o texto mecânico."
+sugestao = "Verifique se a ligação é necessária."
+
+[[expressao]]
+termo = "nesse sentido"
+categoria = "ia"
+justificativa = "Conector vago; nem sempre há um sentido anterior claro."
+sugestao = "Ligue as ideias com a relação real (causa, contraste, exemplo)."
+
+[[expressao]]
+termo = "jornada"
+categoria = "ia"
+justificativa = "Metáfora muito usada; às vezes é a palavra certa."
+sugestao = "Se não for uma jornada de fato, use processo, caminho ou o nome da etapa."
+
+[[expressao]]
+termo = "transformador*"
+categoria = "ia"
+justificativa = "Adjetivo de impacto sem demonstração."
+sugestao = "Mostre o que muda, com fato ou exemplo."
+
+[[expressao]]
+termo = "revolucionári*"
+categoria = "ia"
+justificativa = "Adjetivo de impacto sem demonstração."
+sugestao = "Mostre o que é novo, com fato ou exemplo."
+
+[[expressao]]
+termo = "fora da caixa"
+categoria = "cliche"
+justificativa = "Frase feita desgastada."
+sugestao = "Descreva a ideia diferente em si."
+
+[[expressao]]
+termo = "divisor de águas"
+categoria = "cliche"
+justificativa = "Frase feita desgastada."
+sugestao = "Diga o que mudou antes e depois."
+
+[[expressao]]
+termo = "sem sombra de dúvida"
+categoria = "cliche"
+justificativa = "Ênfase de certeza sem prova."
+sugestao = "Mostre a evidência ou retire a ênfase."
+
+[[expressao]]
+termo = "cereja do bolo"
+categoria = "cliche"
+justificativa = "Frase feita."
+sugestao = "Nomeie o diferencial."
+
+[[expressao]]
+termo = "com chave de ouro"
+categoria = "cliche"
+justificativa = "Frase feita."
+sugestao = "Diga como termina."
+
+[[expressao]]
+termo = "o céu é o limite"
+categoria = "cliche"
+justificativa = "Frase feita."
+sugestao = "Diga o objetivo concreto."
+
+[[expressao]]
+termo = "ponto fora da curva"
+categoria = "cliche"
+justificativa = "Frase feita."
+sugestao = "Explique em que é diferente."
+
+[[expressao]]
+termo = "virar a chave"
+categoria = "cliche"
+justificativa = "Frase feita."
+sugestao = "Diga qual decisão ou mudança aconteceu."
+
+[[expressao]]
+termo = "zona de conforto"
+categoria = "cliche"
+justificativa = "Frase feita."
+sugestao = "Descreva o hábito ou a situação concreta."
+
+[[expressao]]
+termo = "faz toda a diferença"
+categoria = "cliche"
+justificativa = "Ênfase sem dizer qual diferença."
+sugestao = "Diga a diferença."
+
+[[expressao]]
+termo = "de uma vez por todas"
+categoria = "cliche"
+justificativa = "Promessa de definitivo, quase sempre exagerada."
+sugestao = "Diga o que de fato muda."
+
+[[expressao]]
+termo = "basicamente"
+categoria = "muleta"
+justificativa = "Palavra de apoio que raramente acrescenta sentido."
+sugestao = "Retire e releia."
+
+[[expressao]]
+termo = "literalmente"
+categoria = "muleta"
+justificativa = "Muitas vezes usada no sentido figurado, o oposto do literal."
+sugestao = "Retire, a menos que o sentido seja literal mesmo."
+
+[[expressao]]
+termo = "na verdade"
+categoria = "muleta"
+justificativa = "Sugere que algo antes não era verdade."
+sugestao = "Retire, a menos que corrija uma ideia anterior."
+
+[[expressao]]
+termo = "simplesmente"
+categoria = "muleta"
+justificativa = "Pode soar condescendente (\"é simplesmente fazer X\")."
+sugestao = "Retire e releia."
+
+[[expressao]]
+termo = "tipo assim"
+categoria = "muleta"
+justificativa = "Marca de oralidade; pode ser intencional em vídeo."
+sugestao = "Mantenha só se for estilo de fala desejado."

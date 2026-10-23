@@ -17,3 +17,20 @@ termos = []
 [fatos]
 # Categorias que exigem fato VERIFICADO (ver docs/fase-1/INCREMENTO-1.md).
 categorias_sensiveis = ["saude", "financeiro", "comparativo", "resultado"]
+
+[editorial]
+# Revisor editorial (Incremento 3A). TODOS os limiares abaixo são
+# [meta proposta, a calibrar]: preferências de estilo, não medições nem
+# regras de desempenho. Geram só alertas (info/aviso) para revisão humana.
+# Segmento ou cliente pode mudar qualquer valor, desligar regras em
+# regras_desativadas ou acrescentar termos em termos_extras.
+regras_desativadas = []
+termos_extras = []
+termos_ignorados = []
+ia_por_paragrafo_aviso = 2   # expressões do tipo "ia" no mesmo parágrafo para virar aviso
+frase_max_palavras = 30
+paragrafo_max_frases = 5
+repeticao_min = 3            # mesma palavra no parágrafo / frases seguidas com o mesmo início
+palavra_min_letras = 4       # palavras menores não contam na repetição
+mente_max_por_frase = 1
+caixa_alta_min_palavras = 3

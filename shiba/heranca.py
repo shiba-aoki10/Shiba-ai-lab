@@ -27,12 +27,32 @@ from .texto import dobrar
 
 SUBSTITUIR, REMOVER = "__substituir", "__remover"
 
+NUMERO = (int, float)
+
 # Chaves de configuração herdáveis e seus tipos.
 ESQUEMA = {
     "hashtags": {"minimo": int, "maximo": int, "proibidas": list},
     "palavras_proibidas": {"termos": list},
     "fatos": {"categorias_sensiveis": list},
+    # Incremento 3A: revisor editorial (limiares são [meta proposta, a calibrar]).
+    "editorial": {
+        "regras_desativadas": list, "termos_extras": list, "termos_ignorados": list,
+        "ia_por_paragrafo_aviso": int, "frase_max_palavras": int,
+        "paragrafo_max_frases": int, "repeticao_min": int, "palavra_min_letras": int,
+        "mente_max_por_frase": int, "caixa_alta_min_palavras": int,
+    },
 }
+
+
+def _nome_tipo(tipo) -> str:
+    return {list: "lista", int: "int", bool: "bool", str: "texto", NUMERO: "número"}.get(tipo, str(tipo))
+
+
+def tipo_ok(valor, tipo) -> bool:
+    """Confere o tipo; bool nunca vale como número (TOML distingue, Python não)."""
+    if isinstance(valor, bool) and tipo is not bool:
+        return False
+    return isinstance(valor, tipo)
 # Chaves que descrevem a própria camada e nunca são herdadas.
 META = {
     "padrao": {"id", "nome", "descricao"},
@@ -82,6 +102,10 @@ def validar_camada(dados: dict, origem: str, tipo: str) -> None:
                     raise ErroHeranca(f"{origem} [{chave}]: {op} só vale para listas")
                 if op and not isinstance(v, list):
                     raise ErroHeranca(f"{origem} [{chave}]: {sub} deve ser uma lista")
+                if not op and not tipo_ok(v, tipo_esperado):
+                    # O nome do campo, nunca o valor (pode ser dado real).
+                    raise ErroHeranca(f"{origem} [{chave}]: campo {sub} deve ser "
+                                      f"{_nome_tipo(tipo_esperado)}")
             if any(f"{n}{SUBSTITUIR}" in valor and n in valor for n in ESQUEMA[chave]):
                 raise ErroHeranca(f"{origem} [{chave}]: use a lista OU {SUBSTITUIR}, não os dois")
 

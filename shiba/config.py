@@ -3,11 +3,12 @@ from __future__ import annotations
 
 import re
 import tomllib
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import date, datetime
 from pathlib import Path
 
 from .heranca import META, ErroHeranca, resolver, validar_camada
+from .secoes import SECOES, ErroSecao, validar_secoes
 from .unidades import normalizar as normalizar_unidade
 
 RAIZ = Path(__file__).resolve().parent.parent
@@ -64,6 +65,9 @@ class Cliente:
     hashtags_proibidas: tuple[str, ...]
     palavras_proibidas: tuple[str, ...]
     categorias_sensiveis: tuple[str, ...] = CATEGORIAS_SENSIVEIS_PADRAO
+    # Seções herdadas do Incremento 3 (editorial, roteiro, calendário, equipe,
+    # revisão, normas), já validadas. Somente leitura por convenção.
+    secoes: dict = field(default_factory=dict, compare=False)
 
 
 @dataclass(frozen=True)
@@ -274,6 +278,10 @@ def carregar_cliente(cliente_id: str, diretorio: Path = DIR_CLIENTES, *,
     if _campo(perfil, "id", str, origem) != cliente_id:
         raise ErroConfig(f"{origem}: id não corresponde ao diretório")
     ficticio = _campo(perfil, "ficticio", bool, origem)
+    try:
+        validar_secoes(dados, origem)
+    except ErroSecao as e:
+        raise ErroConfig(str(e)) from None
     if exigir_ficticio and ficticio is not True:
         raise ErroConfig(f"{origem}: os modelos versionados aceitam apenas clientes com "
                          "ficticio = true")
@@ -301,6 +309,7 @@ def carregar_cliente(cliente_id: str, diretorio: Path = DIR_CLIENTES, *,
         hashtags_proibidas=tuple(p.lstrip("#") for p in proibidas),
         palavras_proibidas=_lista_de_textos(palavras, "termos", f"{origem} [palavras_proibidas]"),
         categorias_sensiveis=tuple(sensiveis),
+        secoes={nome: dados.get(nome, {}) for nome in SECOES},
     )
 
 

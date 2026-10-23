@@ -27,6 +27,14 @@ from .texto import URL, dentro, dobrar, intervalos, padrao_termo
 BLOQUEANTE, AVISO, INFO = "bloqueante", "aviso", "info"
 SEVERIDADES = (BLOQUEANTE, AVISO, INFO)
 
+# Natureza do achado: quem resolve.
+#   tecnica              conferência automática (estrutura, formato, fatos)
+#   revisao_humana       julgamento editorial; heurística, nunca verdade absoluta
+#   validacao_normativa  exige o responsável competente (técnico, jurídico);
+#                        o motor NÃO interpreta normas nem conclui o que é permitido
+TECNICA, REVISAO, NORMATIVA = "tecnica", "revisao_humana", "validacao_normativa"
+NATUREZAS = (TECNICA, REVISAO, NORMATIVA)
+
 # Hashtag: "#" não precedido de letra/dígito, seguido de letras, dígitos ou "_".
 _HASHTAG = re.compile(r"(?<!\w)#(\w+)")
 
@@ -38,6 +46,9 @@ class Achado:
     mensagem: str
     inicio: int | None = None
     fim: int | None = None
+    natureza: str = TECNICA
+    justificativa: str = ""
+    sugestao: str = ""
 
 
 def extrair_hashtags(texto: str) -> list[re.Match[str]]:
@@ -120,7 +131,8 @@ def _checar_quantidades(texto: str, qs: list[Quantidade], fatos: tuple[Fato, ...
             achados.append(Achado(regra, AVISO,
                                   f"número {q.bruto!r} parece editorial (contagem de itens do "
                                   "próprio post); revisão humana: confirme a contagem e que não "
-                                  "é uma afirmação sobre o cliente", q.inicio, q.fim))
+                                  "é uma afirmação sobre o cliente", q.inicio, q.fim,
+                                  natureza=REVISAO))
     return achados
 
 
@@ -140,7 +152,8 @@ def regra_numero_por_extenso(texto: str, fatos: tuple[Fato, ...],
         if q.chave is None:
             achados.append(Achado("quantidade_vaga", AVISO,
                                   f"quantidade vaga ou relativa {q.bruto!r}: não dá para "
-                                  "conferir com um fato; revisão humana", q.inicio, q.fim))
+                                  "conferir com um fato; revisão humana", q.inicio, q.fim,
+                                  natureza=REVISAO))
     return achados
 
 
@@ -163,7 +176,8 @@ def regra_vinculo_fatos(texto: str, fatos: tuple[Fato, ...], cliente: Cliente,
             achados.append(Achado("vinculo_fato", AVISO,
                                   f"{q.bruto!r} tem o mesmo valor de {_ids(v.fatos, hoje)}, mas "
                                   "a frase não contém o contexto do fato; revisão humana: "
-                                  "confirme se a afirmação é a mesma", *pos))
+                                  "confirme se a afirmação é a mesma", *pos,
+                                  natureza=REVISAO))
         elif v.situacao == "forte":
             fato = v.fatos[0]
             status = status_efetivo(fato, hoje)
@@ -179,7 +193,8 @@ def regra_vinculo_fatos(texto: str, fatos: tuple[Fato, ...], cliente: Cliente,
             elif status == "fornecido":
                 achados.append(Achado("fato_nao_verificado", AVISO,
                                       f"{q.bruto!r} se apoia em {fato.id}, que foi fornecido mas "
-                                      "não verificado; o aprovador precisa reconhecer", *pos))
+                                      "não verificado; o aprovador precisa reconhecer", *pos,
+                                      natureza=REVISAO))
     return achados
 
 
@@ -211,7 +226,8 @@ def regra_afirmacoes_sensiveis(texto: str, fatos: tuple[Fato, ...], cliente: Cli
         else:
             achados.append(Achado(regra, AVISO,
                                   f"{termo!r} pode ser afirmação de {m.categoria}; nenhum fato "
-                                  "verificado apoia a frase; revisão humana", m.inicio, m.fim))
+                                  "verificado apoia a frase; revisão humana", m.inicio, m.fim,
+                                  natureza=REVISAO))
     return achados
 
 
