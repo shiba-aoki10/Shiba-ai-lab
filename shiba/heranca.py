@@ -41,6 +41,11 @@ ESQUEMA = {
         "paragrafo_max_frases": int, "repeticao_min": int, "palavra_min_letras": int,
         "mente_max_por_frase": int, "caixa_alta_min_palavras": int,
     },
+    # Incremento 3B: roteiro audiovisual.
+    "roteiro": {
+        "palavras_por_segundo": NUMERO, "janela_gancho_s": NUMERO,
+        "tolerancia_duracao_pct": NUMERO, "texto_tela_max_palavras": int,
+    },
 }
 
 

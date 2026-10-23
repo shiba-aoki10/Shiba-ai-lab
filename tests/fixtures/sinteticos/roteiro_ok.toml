@@ -1,0 +1,56 @@
+# ROTEIRO FICTÍCIO (cliente de demonstração exemplo-cafe).
+# Vídeo SEM locução: trilha instrumental, motion graphics, texto na tela
+# e CTA visual. Elementos se sobrepõem às cenas de propósito.
+
+titulo = "Café da manhã em 3 cenas"
+plataforma = "tiktok"
+duracao_alvo_s = 15
+mensagem_principal = "O café abre cedo para o café da manhã."
+termos_mensagem = ["abr*", "café da manhã"]
+
+[cta]
+texto = "Vem tomar café"
+forma = "visual"
+elemento = "e-cta"
+
+[[cena]]
+id = "c1"
+inicio_s = 0
+fim_s = 4
+visual = "Close da xícara sendo servida, vapor subindo."
+tipo_visual = "gravacao"
+texto_tela = "Abrimos às 7h"
+
+[[cena]]
+id = "c2"
+inicio_s = 4
+fim_s = 10
+visual = "Motion graphics: relógio animado marcando 7h, ícones de pão e café."
+tipo_visual = "motion_graphics"
+
+[[cena]]
+id = "c3"
+inicio_s = 10
+fim_s = 15
+visual = "Balcão com a fornada do dia; logo no canto."
+texto_tela = "Café da manhã todo dia"
+
+[[elemento]]
+id = "e-trilha"
+tipo = "trilha"
+inicio_s = 0
+fim_s = 15
+conteudo = "trilha instrumental leve"
+
+[[elemento]]
+id = "e-logo"
+tipo = "logo"
+inicio_s = 10
+fim_s = 15
+
+[[elemento]]
+id = "e-cta"
+tipo = "cta_visual"
+inicio_s = 11
+fim_s = 15
+conteudo = "Vem tomar café"

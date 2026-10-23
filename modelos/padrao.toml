@@ -34,3 +34,13 @@ repeticao_min = 3            # mesma palavra no parágrafo / frases seguidas com
 palavra_min_letras = 4       # palavras menores não contam na repetição
 mente_max_por_frase = 1
 caixa_alta_min_palavras = 3
+
+[roteiro]
+# Roteiro audiovisual (Incremento 3B). Valores [meta proposta, a calibrar].
+#
+# palavras_por_segundo NÃO tem valor de propósito: a taxa de fala depende da
+# pessoa, do ritmo e da edição, e será calibrada com vídeos AUTORIZADOS.
+# Sem ela, a estimativa de tempo de fala fica desligada (o laudo avisa).
+janela_gancho_s = 3            # segundos iniciais em que se espera o gancho
+tolerancia_duracao_pct = 15    # desvio aceito entre duração das cenas e o alvo
+texto_tela_max_palavras = 7    # palavras por texto na tela

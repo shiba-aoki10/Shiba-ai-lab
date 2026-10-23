@@ -49,6 +49,7 @@ class Achado:
     natureza: str = TECNICA
     justificativa: str = ""
     sugestao: str = ""
+    local: str = ""   # onde, numa peça com várias partes (ex.: "cena c2 · fala")
 
 
 def extrair_hashtags(texto: str) -> list[re.Match[str]]:

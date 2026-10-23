@@ -40,6 +40,9 @@ def validar_secoes(efetiva: dict, origem: str) -> None:
     for chave, valor in editorial.items():
         if isinstance(valor, int) and valor <= 0:
             raise ErroSecao(f"{origem} [editorial]: {chave} deve ser positivo")
+    for chave, valor in efetiva.get("roteiro", {}).items():
+        if not isinstance(valor, bool) and isinstance(valor, (int, float)) and valor <= 0:
+            raise ErroSecao(f"{origem} [roteiro]: {chave} deve ser positivo")
     equipe = efetiva.get("equipe", {})
     for chave in ("papeis", "aprovadores", "validadores_normativos"):
         for papel in _lista_textos(equipe.get(chave, []), chave, origem):

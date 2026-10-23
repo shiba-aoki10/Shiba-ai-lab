@@ -64,10 +64,37 @@ def _achado_para_dict(texto: str, a: Achado) -> dict:
         d["justificativa"] = a.justificativa
     if a.sugestao:
         d["sugestao"] = a.sugestao
+    if a.local:
+        d["local"] = a.local
     if a.inicio is not None and a.fim is not None:
         d.update(inicio=a.inicio, fim=a.fim, linha=linha_de(texto, a.inicio),
                  trecho=trecho(texto, a.inicio, a.fim))
     return d
+
+
+def achados_de_texto(texto: str, cliente: Cliente, fatos: tuple[Fato, ...], hoje: date,
+                     lexico: Lexico) -> list[Achado]:
+    """Regras que valem para QUALQUER texto de uma peça (legenda, fala, texto na tela).
+
+    Não inclui o que é próprio da legenda (hashtags, limite de caracteres).
+    """
+    return (
+        regra_palavras_proibidas(texto, cliente)
+        + regra_numero_sem_fato(texto, fatos, hoje)
+        + regra_numero_por_extenso(texto, fatos, hoje)
+        + regra_vinculo_fatos(texto, fatos, cliente, hoje)
+        + regra_afirmacoes_sensiveis(texto, fatos, cliente, hoje)
+        + revisar(texto, cliente.secoes.get("editorial", {}), lexico)
+    )
+
+
+def ordenar(achados: list[Achado]) -> list[Achado]:
+    return sorted(achados, key=lambda a: (SEVERIDADES.index(a.severidade),
+                                          a.inicio if a.inicio is not None else -1))
+
+
+def resumo_de(achados: list[Achado]) -> dict:
+    return {s: sum(a.severidade == s for a in achados) for s in SEVERIDADES}
 
 
 def _vinculos_para_dict(texto: str, fatos: tuple[Fato, ...], hoje: date,
@@ -110,19 +137,12 @@ def verificar(texto: str, cliente: Cliente, fatos: tuple[Fato, ...],
               lexico: Lexico | None = None) -> dict:
     hoje = hoje or date.today()
     lexico = lexico or carregar_lexico_editorial()
-    achados = (
+    achados = ordenar(
         regra_hashtags(texto, cliente)
-        + regra_palavras_proibidas(texto, cliente)
-        + regra_numero_sem_fato(texto, fatos, hoje)
-        + regra_numero_por_extenso(texto, fatos, hoje)
-        + regra_vinculo_fatos(texto, fatos, cliente, hoje)
-        + regra_afirmacoes_sensiveis(texto, fatos, cliente, hoje)
+        + achados_de_texto(texto, cliente, fatos, hoje, lexico)
         + regra_limite_caracteres(texto, plataforma)
-        + revisar(texto, cliente.secoes.get("editorial", {}), lexico)
     )
-    achados.sort(key=lambda a: (SEVERIDADES.index(a.severidade),
-                                a.inicio if a.inicio is not None else -1))
-    resumo = {s: sum(a.severidade == s for a in achados) for s in SEVERIDADES}
+    resumo = resumo_de(achados)
     vinculos = _vinculos_para_dict(texto, fatos, hoje, cliente.categorias_sensiveis)
     achados_dict = [_achado_para_dict(texto, a) for a in achados]
     return {

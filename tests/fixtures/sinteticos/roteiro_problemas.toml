@@ -1,0 +1,31 @@
+# ROTEIRO FICTÍCIO com problemas de propósito (cliente exemplo-cafe).
+
+plataforma = "instagram"
+duracao_alvo_s = 30
+mensagem_principal = "Nosso pão de fermentação natural."
+termos_mensagem = ["fermentação natural"]
+
+[cta]
+texto = "Siga o perfil"
+forma = "falada"
+
+[[cena]]
+id = "abertura"
+inicio_s = 1
+fim_s = 5
+visual = "Fachada do café."
+fala = "Siga o perfil para mais receitas."
+
+[[cena]]
+id = "meio"
+inicio_s = 4
+fim_s = 8
+visual = ""
+fala = "Vendemos 500 pães por dia, o melhor do bairro."
+
+[[cena]]
+id = "fim"
+inicio_s = 12
+fim_s = 15
+visual = "Mãos sovando a massa."
+texto_tela = "Pão feito com calma, com carinho e com tempo de verdade"
