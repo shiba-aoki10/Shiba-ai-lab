@@ -1,0 +1,22 @@
+# Segmento GENÉRICO: saúde (Incremento 3D).
+#
+# Só ESTRUTURA conservadora. Não presume regras de nenhum cliente nem cita
+# normas: o que o segmento faz é LIGAR a exigência de validação normativa.
+# Regras específicas (conselho profissional, órgão regulador, política
+# interna) devem ser cadastradas pelo cliente, com fonte, em [normas], e
+# validadas pelo responsável competente do próprio cliente.
+#
+# Faixa de hashtags e palavras proibidas NÃO são definidas aqui: são
+# decisão de cada cliente (o motor recusa o cliente se faltarem).
+
+id = "saude"
+nome = "Saúde (modelo genérico)"
+
+[revisao]
+exige_validacao_normativa = true
+categorias_validacao_normativa = ["saude"]
+listas_validacao = ["saude"]
+aprovacoes_sugeridas = 2   # sugestão para o Incremento 4; o cliente decide
+
+[normas]
+referencias = []           # o cliente cadastra, com fonte e status

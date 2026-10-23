@@ -1,0 +1,11 @@
+# Segmento GENÉRICO: esportivo (Incremento 3D).
+#
+# Só estrutura. NENHUMA regra presumida: temas como patrocínio, apostas,
+# imagem de atletas, resultados de competição ou suplementação dependem do
+# cliente e devem ser definidos com ele (ver docs/fase-1/PERFIS-FUTUROS.md).
+
+id = "esportivo"
+nome = "Esportivo (modelo genérico)"
+
+[revisao]
+exige_validacao_normativa = false

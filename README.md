@@ -10,6 +10,7 @@ Fase 1, protótipo do motor editorial `shiba`: verificação local de legendas, 
 | 0 | `shiba verificar`: hashtags, palavras proibidas, número sem fato, limite de caracteres | [`docs/fase-1/INCREMENTO-0.md`](docs/fase-1/INCREMENTO-0.md) |
 | 1 | Registro de fatos (fornecido, verificado, expirado, contestado), vínculo por valor, unidade e contexto, números por extenso, afirmações sensíveis, `fontes.md` | [`docs/fase-1/INCREMENTO-1.md`](docs/fase-1/INCREMENTO-1.md) |
 | 2 | Herança padrão → segmento → cliente (com ajustes por plataforma), perfis de Instagram, TikTok e YouTube Shorts sem limites inventados, isolamento de dados reais fora do Git | [`docs/fase-1/INCREMENTO-2.md`](docs/fase-1/INCREMENTO-2.md) |
+| 3 | Revisor editorial pt-BR (alertas explicáveis), roteiro audiovisual (cenas sequenciais × elementos simultâneos), calendário editorial, segmentos saúde/social/esportivo com validação normativa separada da técnica, API independente de interface | [`docs/fase-1/INCREMENTO-3.md`](docs/fase-1/INCREMENTO-3.md) |
 
 Visão geral e próximos passos: [`docs/fase-1/ESPECIFICACAO-MVP.md`](docs/fase-1/ESPECIFICACAO-MVP.md).
 
@@ -25,6 +26,10 @@ python3 -m shiba verificar tests/fixtures/sinteticos/academia_passa.md \
     --cliente exemplo-academia --plataforma instagram \
     --formato json --data-referencia 2026-10-23 --fontes /tmp/fontes.md
 
+# roteiro e calendário (TOML)
+python3 -m shiba roteiro verificar tests/fixtures/sinteticos/roteiro_ok.toml --cliente exemplo-cafe
+python3 -m shiba calendario verificar tests/fixtures/sinteticos/calendario_ok.toml --cliente exemplo-cafe
+
 # configuração efetiva após a herança, com a origem de cada valor
 python3 -m shiba config mostrar --cliente exemplo-cafe --plataforma tiktok
 
@@ -39,6 +44,8 @@ python3 -m unittest discover -s tests
 
 Códigos de saída: `0` passou, `1` bloqueado, `2` erro de uso ou configuração.
 
+> **Só texto.** Imagem, áudio e vídeo finais não são analisados.
+>
 > **"passou" não é aprovação.** O verificador aplica regras automáticas e heurísticas. Ele não garante que um texto seja verdadeiro, e a aprovação humana é sempre obrigatória.
 
 ## Estrutura
@@ -46,6 +53,8 @@ Códigos de saída: `0` passou, `1` bloqueado, `2` erro de uso ou configuração
 ```
 shiba/                motor (Python, biblioteca padrão)
 plataformas/          limites de plataforma (_padrao + instagram, tiktok, youtube-shorts)
+shiba/api.py          ponto de entrada para qualquer interface (CLI, agentes, app)
+conhecimento/pt-BR/   léxico editorial e listas de validação (dados versionados)
 modelos/padrao.toml   camada padrão da herança (neutra)
 modelos/segmentos/    segmentos genéricos de demonstração
 modelos/clientes/     clientes FICTÍCIOS de demonstração

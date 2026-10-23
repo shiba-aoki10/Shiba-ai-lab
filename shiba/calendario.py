@@ -25,7 +25,7 @@ from pathlib import Path
 
 from .config import Cliente, ErroConfig
 from .regras import AVISO, BLOQUEANTE, INFO, NATUREZAS, NORMATIVA, REVISAO, Achado
-from .verificar import _achado_para_dict, exigencias_aprovacao, ordenar, resumo_de
+from .verificar import _achado_para_dict, exigencias_aprovacao, ordenar, status_maximo, resumo_de
 
 STATUS = ("ideia", "planejado", "em_producao", "em_revisao", "pronto", "aprovado", "agendado",
           "publicado", "cancelado")
@@ -274,6 +274,7 @@ def verificar_calendario(cal: Calendario, cliente: Cliente, plataformas_validas:
             "por_plataforma": dict(sorted(Counter(p.plataforma for p in cal.pecas).items())),
         },
         "exigencias_aprovacao": exigencias_aprovacao(dicts),
+        "status_maximo": status_maximo(exigencias_aprovacao(dicts)),
         "limites_da_verificacao": [
             "O calendário é verificado como planejamento. Arquivos citados só têm a existência "
             "conferida; o conteúdo das peças não foi analisado aqui (use verificar/roteiro).",

@@ -17,6 +17,7 @@ DIR_PLATAFORMAS = RAIZ / "plataformas"
 DIR_MODELOS = RAIZ / "modelos"
 DIR_CLIENTES = DIR_MODELOS / "clientes"
 PADRAO_PLATAFORMA = "_padrao.toml"
+DIR_LISTAS_VALIDACAO = RAIZ / "conhecimento" / "pt-BR" / "validacao"
 
 # Impede "../" e caminhos absolutos no id usado para montar caminhos.
 _ID = re.compile(r"[a-z0-9][a-z0-9-]{0,62}")
@@ -282,6 +283,14 @@ def carregar_cliente(cliente_id: str, diretorio: Path = DIR_CLIENTES, *,
         validar_secoes(dados, origem)
     except ErroSecao as e:
         raise ErroConfig(str(e)) from None
+    revisao = dados.get("revisao", {})
+    for cat in revisao.get("categorias_validacao_normativa", []):
+        if cat not in CATEGORIAS:
+            raise ErroConfig(f"{origem} [revisao]: categoria desconhecida: {cat}")
+    disponiveis = {p.stem for p in DIR_LISTAS_VALIDACAO.glob("*.toml")}
+    for lista in revisao.get("listas_validacao", []):
+        if lista not in disponiveis:
+            raise ErroConfig(f"{origem} [revisao]: lista de validação inexistente: {lista}")
     if exigir_ficticio and ficticio is not True:
         raise ErroConfig(f"{origem}: os modelos versionados aceitam apenas clientes com "
                          "ficticio = true")

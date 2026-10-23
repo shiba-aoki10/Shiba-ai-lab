@@ -1,0 +1,25 @@
+# CLIENTE FICTÍCIO de saúde, só para testes e demonstração do Incremento 3D.
+# Não representa nenhum cliente real, nem presume regras de nenhum deles.
+
+id = "exemplo-clinica"
+nome = "Clínica Exemplo (fictícia)"
+ficticio = true
+segmento = "saude"
+
+[hashtags]
+minimo = 0
+maximo = 3
+
+[palavras_proibidas]
+termos = []
+
+[equipe]
+papeis = ["resp-01", "resp-02", "resp-03"]
+aprovadores = ["resp-02"]
+validadores_normativos = ["resp-03"]
+
+[normas]
+# Exemplo de FORMATO apenas: referência fictícia, sem valor normativo.
+referencias = [
+  { titulo = "FICTÍCIO: política interna de comunicação de teste", status = "a_verificar" },
+]

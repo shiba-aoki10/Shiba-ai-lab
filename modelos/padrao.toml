@@ -62,3 +62,12 @@ validadores_normativos = []
 # Se verdadeiro, toda peça do cliente exige validação normativa registrada
 # antes de qualquer status de aprovação (o segmento saude liga por padrão).
 exige_validacao_normativa = false
+categorias_validacao_normativa = []
+listas_validacao = []
+aprovacoes_sugeridas = 1   # usado no Incremento 4 (aprovação)
+
+[normas]
+# Referências normativas CADASTRADAS PELO CLIENTE, cada uma com fonte e status
+# (a_verificar | verificado). O motor só as lista no laudo para quem valida;
+# nunca as interpreta nem conclui o que é permitido.
+referencias = []

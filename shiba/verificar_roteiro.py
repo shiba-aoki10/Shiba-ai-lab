@@ -12,6 +12,7 @@ from datetime import date
 
 from .config import Cliente, Fato, Plataforma
 from .lexico import Lexico, carregar_lexico_editorial
+from .normativa import normas_registradas
 from .regras import AVISO, BLOQUEANTE, INFO, NATUREZAS, NORMATIVA, REVISAO, Achado
 from .roteiro import ELEMENTOS_DE_AUDIO, Roteiro, contem, palavras, unidades_de_texto
 from .verificar import (
@@ -19,6 +20,7 @@ from .verificar import (
     _achado_para_dict,
     achados_de_texto,
     exigencias_aprovacao,
+    status_maximo,
     ordenar,
     resumo_de,
 )
@@ -231,6 +233,8 @@ def verificar_roteiro(r: Roteiro, cliente: Cliente, fatos: tuple[Fato, ...], pla
             "fala_estimada_s": falado,
         },
         "exigencias_aprovacao": exigencias_aprovacao(dicts),
+        "status_maximo": status_maximo(exigencias_aprovacao(dicts)),
         "limites_da_verificacao": [LIMITE_ROTEIRO, *LIMITES_DA_VERIFICACAO[1:]],
+        "normas_registradas": normas_registradas(cliente),
         "achados": dicts,
     }

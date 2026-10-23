@@ -1,0 +1,13 @@
+# Segmento GENÉRICO: projetos sociais (Incremento 3D).
+#
+# Só estrutura. NENHUMA regra presumida: temas como doações, imagem de
+# beneficiários, menores de idade ou prestação de contas dependem do projeto
+# e devem ser definidos com o cliente (ver docs/fase-1/PERFIS-FUTUROS.md).
+# Quando houver lista de validação aprovada pelo cliente, ela entra em
+# conhecimento/pt-BR/validacao/ e é ligada aqui em listas_validacao.
+
+id = "social"
+nome = "Social (modelo genérico)"
+
+[revisao]
+exige_validacao_normativa = false

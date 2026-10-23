@@ -8,6 +8,7 @@ from .config import Cliente, Fato, Plataforma
 from .numeros import extrair_numeros
 from .editorial import revisar
 from .lexico import Lexico, carregar_lexico_editorial
+from .normativa import normas_registradas, regra_validacao_normativa
 from .regras import (
     AVISO,
     BLOQUEANTE,
@@ -40,6 +41,20 @@ LIMITES_DA_VERIFICACAO = (
     "sujeitos à revisão humana; não são erros obrigatórios.",
     "Nenhuma conclusão jurídica ou normativa é feita pelo motor.",
 )
+
+
+def status_maximo(exigencias: list[str]) -> str:
+    """O status MAIS AVANÇADO que a peça pode ter só com este laudo.
+
+    Nunca é "aprovado": aprovação é sempre um ato humano (Incremento 4). Peça
+    que exige validação normativa não passa de "aguardando_validacao_normativa"
+    só por ter passado nas verificações técnicas.
+    """
+    if "corrigir_bloqueantes" in exigencias:
+        return "correcao_necessaria"
+    if "validacao_normativa_pelo_responsavel_competente" in exigencias:
+        return "aguardando_validacao_normativa"
+    return "aguardando_aprovacao_humana"
 
 
 def exigencias_aprovacao(achados: list[dict]) -> list[str]:
@@ -85,6 +100,7 @@ def achados_de_texto(texto: str, cliente: Cliente, fatos: tuple[Fato, ...], hoje
         + regra_vinculo_fatos(texto, fatos, cliente, hoje)
         + regra_afirmacoes_sensiveis(texto, fatos, cliente, hoje)
         + revisar(texto, cliente.secoes.get("editorial", {}), lexico)
+        + regra_validacao_normativa(texto, fatos, cliente, hoje)
     )
 
 
@@ -163,7 +179,9 @@ def verificar(texto: str, cliente: Cliente, fatos: tuple[Fato, ...],
         "por_natureza": {n: sum(a.natureza == n for a in achados) for n in NATUREZAS},
         "requer_validacao_normativa": any(a.natureza == NORMATIVA for a in achados),
         "exigencias_aprovacao": exigencias_aprovacao(achados_dict),
+        "status_maximo": status_maximo(exigencias_aprovacao(achados_dict)),
         "limites_da_verificacao": list(LIMITES_DA_VERIFICACAO),
+        "normas_registradas": normas_registradas(cliente),
         "achados": achados_dict,
         "vinculos": vinculos,
         "fatos_usados": _fatos_usados(vinculos, fatos, hoje),

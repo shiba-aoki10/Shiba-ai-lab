@@ -16,6 +16,7 @@ REGRAS_EDITORIAIS = (
     "repeticao_palavra", "repeticao_inicio", "adverbios_mente", "pontuacao", "caixa_alta",
 )
 
+CAMPOS_NORMA = {"titulo", "fonte", "status", "consultado_em", "verificado_por", "nota"}
 _PAPEL = re.compile(r"[a-z0-9][a-z0-9-]{0,62}")
 
 
@@ -49,6 +50,23 @@ def validar_secoes(efetiva: dict, origem: str) -> None:
             if not _PAPEL.fullmatch(papel):
                 raise ErroSecao(f"{origem} [equipe]: {chave} aceita só identificadores de papel "
                                 "(a-z, 0-9, hífen), nunca nomes de pessoas")
+    revisao = efetiva.get("revisao", {})
+    for chave in ("categorias_validacao_normativa", "listas_validacao"):
+        _lista_textos(revisao.get(chave, []), chave, origem)
+    if revisao.get("aprovacoes_sugeridas", 1) < 1:
+        raise ErroSecao(f"{origem} [revisao]: aprovacoes_sugeridas deve ser positivo")
+    for n, ref in enumerate(efetiva.get("normas", {}).get("referencias", []), 1):
+        local = f"{origem} [normas] referência #{n}"
+        if not isinstance(ref, dict) or set(ref) - CAMPOS_NORMA:
+            raise ErroSecao(f"{local}: use tabelas com os campos {sorted(CAMPOS_NORMA)}")
+        for campo in ("titulo", "status"):
+            if not isinstance(ref.get(campo), str) or not ref[campo].strip():
+                raise ErroSecao(f"{local}: campo obrigatório ausente ou vazio: {campo}")
+        if ref["status"] not in ("a_verificar", "verificado"):
+            raise ErroSecao(f"{local}: status deve ser 'a_verificar' ou 'verificado'")
+        if ref["status"] == "verificado" and not all(
+                str(ref.get(c, "")).strip() for c in ("fonte", "consultado_em", "verificado_por")):
+            raise ErroSecao(f"{local}: 'verificado' exige fonte, consultado_em e verificado_por")
     papeis = set(equipe.get("papeis", []))
     for chave in ("aprovadores", "validadores_normativos"):
         fora = [p for p in equipe.get(chave, []) if p not in papeis]

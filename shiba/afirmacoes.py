@@ -46,7 +46,7 @@ MARCADORES = (
     ("resultado", "forte", ("garant*", "comprovad*", "sem risco")),
     ("resultado", "fraco", ("aumenta*", "triplica*", "multiplica*", "transforma*", "resultado*")),
     ("saude", "forte", ("cura", "curam", "curar", "emagrec*")),
-    ("saude", "fraco", ("previn*", "imunidade", "saudave*", "tratamento*", "trata",
+    ("saude", "fraco", ("previn*", "preven*", "imunidade", "saudave*", "tratamento*", "trata",
                         "alivia*", "combate*", "detox", "desintox*", "anvisa")),
     ("financeiro", "fraco", ("lucro*", "rendimento*", "retorno financeiro", "investiment*",
                              "juros", "renda extra", "ganhe dinheiro")),

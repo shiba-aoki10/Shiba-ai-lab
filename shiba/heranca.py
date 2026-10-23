@@ -50,7 +50,12 @@ ESQUEMA = {
     "calendario": {"status_exigem_arquivo": list, "max_pecas_por_responsavel_dia": int,
                    "pilares": list},
     "equipe": {"papeis": list, "aprovadores": list, "validadores_normativos": list},
-    "revisao": {"exige_validacao_normativa": bool},
+    "revisao": {"exige_validacao_normativa": bool,
+                # Incremento 3D: o que exige validação normativa (sem interpretar normas).
+                "categorias_validacao_normativa": list, "listas_validacao": list,
+                "aprovacoes_sugeridas": int},
+    # Referências normativas CADASTRADAS PELO CLIENTE, com fonte; o motor só as lista.
+    "normas": {"referencias": list},
 }
 
 

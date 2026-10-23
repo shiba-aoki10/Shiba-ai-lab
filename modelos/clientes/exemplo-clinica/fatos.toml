@@ -1,0 +1,20 @@
+# FATOS FICTÍCIOS do cliente de demonstração "exemplo-clinica".
+
+[[fato]]
+id = "S-0001"
+texto = "A consulta de avaliação dura 40 minutos."
+valores = ["40"]
+status = "verificado"
+categoria = "saude"
+contexto = ["consulta*", "avalia*"]
+unidade = "minuto"
+[fato.fonte]
+tipo = "documento_interno"
+referencia = "FICTÍCIO: dado inventado para teste"
+informado_por = "equipe de teste"
+informado_em = "2026-10-23"
+[fato.verificacao]
+fonte = "FICTÍCIO: documento de teste"
+metodo = "demonstração"
+verificado_por = "equipe de teste"
+verificado_em = "2026-10-23"

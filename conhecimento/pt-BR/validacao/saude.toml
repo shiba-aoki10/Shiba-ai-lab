@@ -1,0 +1,91 @@
+# Temas de SAÚDE que exigem validação pelo responsável competente
+# (Incremento 3D).
+#
+# IMPORTANTE:
+# - Esta lista NÃO diz o que é permitido ou proibido. Ela só aponta temas
+#   em que profissões e serviços de saúde costumam ter regras próprias, para
+#   que uma pessoa habilitada (responsável técnico, jurídico ou de
+#   conformidade do cliente) valide a peça.
+# - Nenhuma norma é citada ou interpretada aqui. As referências aplicáveis
+#   devem ser cadastradas pelo cliente em [normas], com fonte.
+# - Ausência de termo da lista NÃO significa que a peça dispensa validação.
+#
+# Campos: termo ("*" no fim = prefixo; sem acento e sem maiúsculas), motivo.
+
+versao = 1
+
+[[tema]]
+termo = "antes e depois"
+motivo = "Comparação de imagens ou resultados de pacientes."
+
+[[tema]]
+termo = "depoimento*"
+motivo = "Relato de paciente ou cliente sobre resultado de saúde."
+
+[[tema]]
+termo = "paciente*"
+motivo = "Menção a pacientes pode envolver privacidade e exposição."
+
+[[tema]]
+termo = "diagnóstic*"
+motivo = "Diagnóstico é ato técnico; a comunicação pode ter regras próprias."
+
+[[tema]]
+termo = "tratamento*"
+motivo = "Indicação ou promessa sobre tratamento."
+
+[[tema]]
+termo = "procedimento*"
+motivo = "Divulgação de procedimento de saúde."
+
+[[tema]]
+termo = "cirurgi*"
+motivo = "Divulgação de cirurgia."
+
+[[tema]]
+termo = "medicament*"
+motivo = "Menção a medicamento."
+
+[[tema]]
+termo = "remédio*"
+motivo = "Menção a medicamento."
+
+[[tema]]
+termo = "prescri*"
+motivo = "Prescrição é ato técnico."
+
+[[tema]]
+termo = "sem efeitos colaterais"
+motivo = "Afirmação absoluta de segurança."
+
+[[tema]]
+termo = "100% seguro"
+motivo = "Afirmação absoluta de segurança."
+
+[[tema]]
+termo = "sem riscos"
+motivo = "Afirmação absoluta de segurança."
+
+[[tema]]
+termo = "resultado garantido"
+motivo = "Promessa de resultado em saúde."
+
+[[tema]]
+termo = "especialista*"
+motivo = "Uso de título ou especialidade profissional."
+
+[[tema]]
+termo = "consulta online"
+motivo = "Atendimento a distância pode ter regras próprias."
+
+[[tema]]
+termo = "telemedicina"
+motivo = "Atendimento a distância pode ter regras próprias."
+
+[[tema]]
+termo = "preço*"
+motivo = "Divulgação de preço de serviço de saúde."
+
+[[tema]]
+termo = "desconto*"
+motivo = "Promoção de serviço de saúde."
