@@ -1,0 +1,10 @@
+# Mídia não vai para o git
+material-bruto/*
+referencias/*
+exportacoes/*
+!**/.gitkeep
+projetos/**/node_modules/
+projetos/**/*.mp4
+projetos/**/*.mov
+projetos/**/*.wav
+projetos/**/out/
